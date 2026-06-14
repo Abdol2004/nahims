@@ -1,0 +1,44 @@
+<%- include('layout-start', {title: 'Materials', active: 'materials'}) %>
+<div class="admin-topbar"><h1>Study Materials</h1></div>
+<% if (success) { %><div class="alert alert-success"><i data-feather="check-circle"></i> <%= success %></div><% } %>
+<div class="admin-card">
+  <div class="admin-card-header"><h3>Add Material</h3></div>
+  <form method="POST" action="/admin/materials/add" enctype="multipart/form-data">
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Title *</label><input type="text" name="title" class="form-input" required></div>
+      <div class="form-group"><label class="form-label">Category</label>
+        <select name="category" class="form-select">
+          <% ['100 Level','200 Level','300 Level','400 Level','500 Level','Reference'].forEach(c => { %><option><%= c %></option><% }); %>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Description</label><input type="text" name="description" class="form-input"></div>
+      <div class="form-group"><label class="form-label">Icon (feather icon name)</label><input type="text" name="icon" class="form-input" value="file-text" placeholder="file-text, database, book-open..."></div>
+    </div>
+    <div class="form-group"><label class="form-label">File (PDF, DOC, etc.)</label><input type="file" name="file" class="form-input" style="padding:8px;"></div>
+    <button type="submit" class="btn btn-green btn-sm"><i data-feather="plus"></i> Add Material</button>
+  </form>
+</div>
+<div class="admin-card">
+  <div class="admin-card-header"><h3>All Materials (<%= db.materials.length %>)</h3></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Title</th><th>Category</th><th>File</th><th>Actions</th></tr></thead>
+    <tbody>
+      <% db.materials.forEach(m => { %>
+      <tr>
+        <td><strong><%= m.title %></strong><div style="font-size:12px;color:var(--gray);"><%= m.description %></div></td>
+        <td><span class="badge badge-paid"><%= m.category %></span></td>
+        <td>
+          <% if (m.file) { %><a href="<%= m.file %>" target="_blank" class="btn btn-xs btn-green"><i data-feather="download"></i> File</a>
+          <% } else { %><span style="font-size:12px;color:var(--gray);">No file</span><% } %>
+        </td>
+        <td><form method="POST" action="/admin/materials/delete/<%= m.id %>" data-confirm="Delete this material?">
+          <button class="btn btn-xs" style="background:#FEF2F2;color:#dc2626;border:1px solid #fecaca;"><i data-feather="trash-2"></i> Delete</button>
+        </form></td>
+      </tr>
+      <% }); %>
+    </tbody>
+  </table></div>
+</div>
+<%- include('layout-end') %>

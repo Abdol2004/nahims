@@ -1,0 +1,65 @@
+<%- include('layout-start', {title: 'Executives', active: 'executives'}) %>
+<div class="admin-topbar">
+  <h1>Executives</h1>
+</div>
+<% if (success) { %><div class="alert alert-success"><i data-feather="check-circle"></i> <%= success %></div><% } %>
+
+<!-- ADD FORM -->
+<div class="admin-card">
+  <div class="admin-card-header"><h3>Add Executive</h3></div>
+  <form method="POST" action="/admin/executives/add" enctype="multipart/form-data">
+    <div class="form-grid-3">
+      <div class="form-group"><label class="form-label">Full Name *</label><input type="text" name="name" class="form-input" required placeholder="Olamide Adesanya"></div>
+      <div class="form-group"><label class="form-label">Position *</label><input type="text" name="position" class="form-input" required placeholder="Zonal President"></div>
+      <div class="form-group"><label class="form-label">School *</label><input type="text" name="school" class="form-input" required placeholder="University of Ibadan"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Photo</label><input type="file" name="image" class="form-input" accept="image/*" style="padding:8px;"></div>
+    <button type="submit" class="btn btn-green btn-sm"><i data-feather="plus"></i> Add Executive</button>
+  </form>
+</div>
+
+<!-- LIST -->
+<div class="admin-card">
+  <div class="admin-card-header"><h3>Current Executives (<%= db.executives.length %>)</h3></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Photo</th><th>Name</th><th>Position</th><th>School</th><th>Actions</th></tr></thead>
+    <tbody>
+      <% db.executives.forEach(exec => { %>
+      <tr>
+        <td>
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;overflow:hidden;">
+            <% if (exec.image) { %><img src="<%= exec.image %>" style="width:100%;height:100%;object-fit:cover;"><% } else { %><%= exec.initials %><% } %>
+          </div>
+        </td>
+        <td><strong><%= exec.name %></strong></td>
+        <td><%= exec.position %></td>
+        <td style="font-size:13px;"><%= exec.school %></td>
+        <td><div class="admin-table-actions">
+          <button onclick="document.getElementById('editExec<%= exec.id %>').style.display='block'" class="btn btn-green btn-xs"><i data-feather="edit-2"></i></button>
+          <form method="POST" action="/admin/executives/delete/<%= exec.id %>" data-confirm="Remove this executive?">
+            <button class="btn btn-xs" style="background:#FEF2F2;color:#dc2626;border:1px solid #fecaca;"><i data-feather="trash-2"></i></button>
+          </form>
+        </div></td>
+      </tr>
+      <!-- Inline edit row -->
+      <tr id="editExec<%= exec.id %>" style="display:none;background:var(--green-light);">
+        <td colspan="5" style="padding:16px;">
+          <form method="POST" action="/admin/executives/update/<%= exec.id %>" enctype="multipart/form-data">
+            <div class="form-grid-3">
+              <input type="text" name="name" class="form-input" value="<%= exec.name %>" required>
+              <input type="text" name="position" class="form-input" value="<%= exec.position %>" required>
+              <input type="text" name="school" class="form-input" value="<%= exec.school %>" required>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:10px;align-items:center;">
+              <input type="file" name="image" class="form-input" accept="image/*" style="padding:6px;flex:1;">
+              <button type="submit" class="btn btn-green btn-sm"><i data-feather="save"></i> Save</button>
+              <button type="button" onclick="document.getElementById('editExec<%= exec.id %>').style.display='none'" class="btn btn-sm" style="background:var(--gray-mid);">Cancel</button>
+            </div>
+          </form>
+        </td>
+      </tr>
+      <% }); %>
+    </tbody>
+  </table></div>
+</div>
+<%- include('layout-end') %>

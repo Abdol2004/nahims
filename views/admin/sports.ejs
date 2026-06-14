@@ -1,0 +1,80 @@
+<%- include('layout-start', {title: 'Sports', active: 'sports'}) %>
+<div class="admin-topbar"><h1>Sports & League</h1></div>
+<% if (success) { %><div class="alert alert-success"><i data-feather="check-circle"></i> <%= success %></div><% } %>
+
+<div class="admin-card">
+  <div class="admin-card-header"><h3>League Table</h3></div>
+  <form method="POST" action="/admin/sports/league/update">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>Form (W,D,L)</th></tr></thead>
+      <tbody>
+        <% db.sportLeague.forEach(team => { %>
+        <tr>
+          <td><input type="text" name="team" class="form-input" value="<%= team.team %>" style="min-width:150px;"></td>
+          <td><input type="number" name="p" class="form-input" value="<%= team.p %>" style="width:60px;padding:6px;"></td>
+          <td><input type="number" name="w" class="form-input" value="<%= team.w %>" style="width:60px;padding:6px;"></td>
+          <td><input type="number" name="d" class="form-input" value="<%= team.d %>" style="width:60px;padding:6px;"></td>
+          <td><input type="number" name="l" class="form-input" value="<%= team.l %>" style="width:60px;padding:6px;"></td>
+          <td><input type="number" name="gf" class="form-input" value="<%= team.gf %>" style="width:60px;padding:6px;"></td>
+          <td><input type="number" name="ga" class="form-input" value="<%= team.ga %>" style="width:60px;padding:6px;"></td>
+          <td><input type="text" name="form" class="form-input" value="<%= (team.form||[]).join(',') %>" placeholder="W,D,L,W,W" style="width:110px;"></td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table></div>
+    <button type="submit" class="btn btn-green btn-sm" style="margin-top:14px;"><i data-feather="save"></i> Update League Table</button>
+  </form>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+  <!-- ADD FIXTURE -->
+  <div class="admin-card">
+    <div class="admin-card-header"><h3>Add Fixture</h3></div>
+    <form method="POST" action="/admin/sports/fixture/add">
+      <div class="form-group"><label class="form-label">Home Team</label><input type="text" name="home" class="form-input" required></div>
+      <div class="form-group"><label class="form-label">Away Team</label><input type="text" name="away" class="form-input" required></div>
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Date</label><input type="date" name="date" class="form-input" required></div>
+        <div class="form-group"><label class="form-label">Time</label><input type="time" name="time" class="form-input" required></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Venue</label><input type="text" name="venue" class="form-input"></div>
+        <div class="form-group"><label class="form-label">Matchday</label><input type="number" name="matchday" class="form-input" value="9"></div>
+      </div>
+      <button type="submit" class="btn btn-green btn-sm"><i data-feather="plus"></i> Add Fixture</button>
+    </form>
+    <!-- Fixtures list -->
+    <% if (db.fixtures.length) { %>
+    <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
+      <% db.fixtures.forEach(f => { %>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">
+        <span><strong><%= f.home %></strong> vs <strong><%= f.away %></strong> &middot; <%= f.date %></span>
+        <form method="POST" action="/admin/sports/fixture/delete/<%= f.id %>" data-confirm="Delete fixture?">
+          <button class="btn btn-xs" style="background:#FEF2F2;color:#dc2626;border:1px solid #fecaca;"><i data-feather="trash-2"></i></button>
+        </form>
+      </div>
+      <% }); %>
+    </div>
+    <% } %>
+  </div>
+
+  <!-- ADD RESULT -->
+  <div class="admin-card">
+    <div class="admin-card-header"><h3>Add Result</h3></div>
+    <form method="POST" action="/admin/sports/result/add">
+      <div class="form-group"><label class="form-label">Home Team</label><input type="text" name="home" class="form-input" required></div>
+      <div class="form-group"><label class="form-label">Away Team</label><input type="text" name="away" class="form-input" required></div>
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Home Score</label><input type="number" name="homeScore" class="form-input" value="0" min="0"></div>
+        <div class="form-group"><label class="form-label">Away Score</label><input type="number" name="awayScore" class="form-input" value="0" min="0"></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Date</label><input type="date" name="date" class="form-input" required></div>
+        <div class="form-group"><label class="form-label">Matchday</label><input type="number" name="matchday" class="form-input" value="8"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Scorers</label><input type="text" name="scorers" class="form-input" placeholder="Eze 12', 45' | Okoye 33'"></div>
+      <button type="submit" class="btn btn-green btn-sm"><i data-feather="plus"></i> Add Result</button>
+    </form>
+  </div>
+</div>
+<%- include('layout-end') %>

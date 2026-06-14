@@ -1,0 +1,30 @@
+<%- include('layout-start', {title: 'News', active: 'news'}) %>
+<div class="admin-topbar">
+  <h1>News Articles</h1>
+  <a href="/admin/news/new" class="btn btn-green btn-sm"><i data-feather="plus"></i> Add Article</a>
+</div>
+<% if (success) { %><div class="alert alert-success"><i data-feather="check-circle"></i> <%= success %></div><% } %>
+<div class="admin-card">
+  <div class="table-wrap"><table>
+    <thead><tr><th>Title</th><th>Category</th><th>Date</th><th>Author</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+      <% db.news.forEach(n => { %>
+      <tr>
+        <td><strong><%= n.title %></strong></td>
+        <td><span class="badge badge-paid" style="font-size:11px;"><%= n.category %></span></td>
+        <td style="font-size:13px;"><%= n.date %></td>
+        <td style="font-size:13px;"><%= n.author %></td>
+        <td><span class="badge <%= n.published ? 'badge-paid' : 'badge-unpaid' %>"><%= n.published ? 'Published' : 'Draft' %></span></td>
+        <td><div class="admin-table-actions">
+          <a href="/news/<%= n.slug %>" target="_blank" class="btn btn-xs btn-outline" style="color:var(--gray);border-color:var(--border);"><i data-feather="eye"></i></a>
+          <a href="/admin/news/edit/<%= n.id %>" class="btn btn-green btn-xs"><i data-feather="edit-2"></i> Edit</a>
+          <form method="POST" action="/admin/news/delete/<%= n.id %>" data-confirm="Delete this article?">
+            <button class="btn btn-xs" style="background:#FEF2F2;color:#dc2626;border:1px solid #fecaca;"><i data-feather="trash-2"></i></button>
+          </form>
+        </div></td>
+      </tr>
+      <% }); %>
+    </tbody>
+  </table></div>
+</div>
+<%- include('layout-end') %>

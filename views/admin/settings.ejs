@@ -1,0 +1,46 @@
+<%- include('layout-start', {title: 'Settings', active: 'settings'}) %>
+<div class="admin-topbar"><h1>Site Settings</h1></div>
+<% if (success) { %><div class="alert alert-success"><i data-feather="check-circle"></i> <%= success %></div><% } %>
+<% if (typeof error !== 'undefined' && error) { %><div class="alert alert-error"><i data-feather="alert-circle"></i> <%= error %></div><% } %>
+
+<div class="admin-card">
+  <div class="admin-card-header"><h3>Contact & Social Media</h3></div>
+  <form method="POST" action="/admin/settings">
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Email</label><input type="email" name="email" class="form-input" value="<%= db.site.email %>"></div>
+      <div class="form-group"><label class="form-label">Phone</label><input type="text" name="phone" class="form-input" value="<%= db.site.phone %>"></div>
+    </div>
+    <div class="form-grid-3">
+      <div class="form-group"><label class="form-label">Twitter</label><input type="text" name="twitter" class="form-input" value="<%= db.site.twitter %>"></div>
+      <div class="form-group"><label class="form-label">Instagram</label><input type="text" name="instagram" class="form-input" value="<%= db.site.instagram %>"></div>
+      <div class="form-group"><label class="form-label">Facebook</label><input type="text" name="facebook" class="form-input" value="<%= db.site.facebook %>"></div>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--border);margin:20px 0;">
+    <h4 style="margin-bottom:16px;font-size:15px;">Homepage Statistics</h4>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Total Chapters</label><input type="text" name="statChapters" class="form-input" value="<%= db.site.stats.chapters %>"></div>
+      <div class="form-group"><label class="form-label">Members</label><input type="text" name="statMembers" class="form-input" value="<%= db.site.stats.members %>"></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">States</label><input type="text" name="statStates" class="form-input" value="<%= db.site.stats.states %>"></div>
+      <div class="form-group"><label class="form-label">Years</label><input type="text" name="statYears" class="form-input" value="<%= db.site.stats.years %>"></div>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--border);margin:20px 0;">
+    <h4 style="margin-bottom:16px;font-size:15px;">Announcement Ticker</h4>
+    <div class="form-group">
+      <label class="form-label">Announcements (one per line)</label>
+      <textarea name="announcements" class="form-textarea" style="min-height:140px;"><%= db.announcements.join('\n') %></textarea>
+    </div>
+    <button type="submit" class="btn btn-green"><i data-feather="save"></i> Save Settings</button>
+  </form>
+</div>
+
+<div class="admin-card">
+  <div class="admin-card-header"><h3><i data-feather="lock" style="display:inline;width:15px;height:15px;color:var(--green);"></i> Change Password</h3></div>
+  <form method="POST" action="/admin/settings/password" style="max-width:400px;">
+    <div class="form-group"><label class="form-label">Current Password</label><input type="password" name="currentPassword" class="form-input" required></div>
+    <div class="form-group"><label class="form-label">New Password</label><input type="password" name="newPassword" class="form-input" required minlength="6"></div>
+    <button type="submit" class="btn btn-green btn-sm"><i data-feather="key"></i> Change Password</button>
+  </form>
+</div>
+<%- include('layout-end') %>

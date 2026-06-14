@@ -1,0 +1,60 @@
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <div class="footer-logo-icon"><img src="./logo.png" width="100%" alt="NAHIMS SW Logo"></div>
+        <div class="footer-logo-text">NAHIMS SW</div>
+      </div>
+      <p class="footer-about">
+        National Association of Health Information Management Students, Southwest Zone (Zone D).
+        Advancing academic excellence, professional development, and student unity across six states.
+      </p>
+      <div class="footer-socials">
+        <a href="#" class="social-btn" aria-label="Twitter"><i data-feather="twitter"></i></a>
+        <a href="#" class="social-btn" aria-label="Facebook"><i data-feather="facebook"></i></a>
+        <a href="#" class="social-btn" aria-label="Instagram"><i data-feather="instagram"></i></a>
+        <a href="#" class="social-btn" aria-label="Email"><i data-feather="mail"></i></a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="/"><i data-feather="home"></i> Home</a></li>
+        <li><a href="/sports"><i data-feather="award"></i> Sports</a></li>
+        <li><a href="/academic"><i data-feather="book-open"></i> Academic</a></li>
+        <li><a href="/news"><i data-feather="rss"></i> News</a></li>
+        <li><a href="/chapters"><i data-feather="map-pin"></i> Chapters</a></li>
+        <li><a href="/blog"><i data-feather="edit-3"></i> Blog</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="mailto:<%= db.site.email %>"><i data-feather="mail"></i> <%= db.site.email %></a></li>
+        <li><a href="tel:<%= db.site.phone %>"><i data-feather="phone"></i> <%= db.site.phone %></a></li>
+        <li><a href="#"><i data-feather="twitter"></i> <%= db.site.twitter %></a></li>
+        <li><a href="#"><i data-feather="instagram"></i> <%= db.site.instagram %></a></li>
+        <li><a href="#"><i data-feather="facebook"></i> <%= db.site.facebook %></a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col footer-newsletter">
+      <h4>Stay Updated</h4>
+      <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:14px;">Get the latest NAHIMS SW news and announcements.</p>
+      <input type="email" placeholder="Enter your email">
+      <button type="button">Subscribe <i data-feather="send" style="display:inline;width:13px;height:13px;"></i></button>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>&copy; <%= new Date().getFullYear() %> NAHIMS SW – Zone D. All rights reserved.</span>
+    <span>Built for Nigerian HIM Students 🇳🇬 | <a href="/admin" style="color:rgba(255,255,255,0.4);">Admin</a></span>
+  </div>
+</footer>
+
+<script src="/js/main.js"></script>
+<script>if (typeof feather !== 'undefined') feather.replace();</script>
+</body>
+</html>

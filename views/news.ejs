@@ -1,0 +1,111 @@
+<%- include('partials/head', {title: 'News & Awareness'}) %>
+<%- include('partials/navbar') %>
+
+<div class="page-hero ph-red">
+  <div class="hero-badge" style="background:rgba(239,159,39,0.3);color:var(--gold-mid);border:1px solid rgba(239,159,39,0.4);display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;padding:6px 18px;border-radius:100px;margin-bottom:18px;">
+    <i data-feather="rss"></i> Zone D Updates
+  </div>
+  <h1>News &amp; Health Awareness</h1>
+  <p>Latest news from NAHIMS SW and health education for all</p>
+</div>
+
+<div class="section" data-tab-group="news">
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="tab-allnews"><i data-feather="file-text"></i> All News</button>
+    <button class="tab-btn" data-tab="tab-health"><i data-feather="heart"></i> Health Awareness</button>
+    <button class="tab-btn" data-tab="tab-industry"><i data-feather="trending-up"></i> HIM Industry</button>
+  </div>
+
+  <!-- ALL NEWS -->
+  <div class="tab-pane active" id="tab-allnews">
+    <div class="news-grid">
+      <% articles.forEach((article, i) => { %>
+      <div class="news-card animate-on-scroll" style="animation-delay:<%= i*100 %>ms">
+        <div class="news-img">
+          <% if (article.image) { %>
+            <img src="<%= article.image %>" alt="<%= article.title %>">
+          <% } else { %>
+            <div class="news-img-placeholder"><i data-feather="file-text"></i></div>
+          <% } %>
+        </div>
+        <div class="news-body">
+          <span class="card-tag"><%= article.category %></span>
+          <h3><%= article.title %></h3>
+          <p><%= article.excerpt %></p>
+          <div class="news-meta">
+            <i data-feather="calendar"></i>
+            <%= new Date(article.date).toLocaleDateString('en-NG', {year:'numeric',month:'long',day:'numeric'}) %>
+            &middot; <%= article.author %>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span></span>
+          <a href="/news/<%= article.slug %>">Read more <i data-feather="arrow-right"></i></a>
+        </div>
+      </div>
+      <% }); %>
+    </div>
+  </div>
+
+  <!-- HEALTH AWARENESS -->
+  <div class="tab-pane" id="tab-health">
+    <div class="awareness-cards" style="margin-bottom:40px;">
+      <div class="awareness-card aw-green animate-on-scroll">
+        <i data-feather="activity"></i>
+        <h3>Know Your Blood Group</h3>
+        <p>Understanding your blood group is critical in emergencies. Visit any hospital or clinic for a free blood group test.</p>
+        <a href="#" class="aw-link"><i data-feather="arrow-right"></i> Learn more</a>
+      </div>
+      <div class="awareness-card aw-blue animate-on-scroll">
+        <i data-feather="smile"></i>
+        <h3>Mental Health Matters</h3>
+        <p>Student life can be stressful. Talk to someone. NAHIMS SW supports mental wellness in all our chapters.</p>
+        <a href="#" class="aw-link"><i data-feather="arrow-right"></i> Resources</a>
+      </div>
+      <div class="awareness-card aw-red animate-on-scroll">
+        <i data-feather="shield"></i>
+        <h3>Malaria Prevention</h3>
+        <p>Use insecticide-treated nets. Seek treatment early. Malaria is preventable and treatable — spread awareness.</p>
+        <a href="#" class="aw-link"><i data-feather="arrow-right"></i> Share this</a>
+      </div>
+    </div>
+    <div class="news-grid">
+      <% [
+        {img:'',tag:'Awareness',title:'World Health Day 2024 – NAHIMS SW Takes Action',desc:'NAHIMS SW chapters organised free health screenings and public lectures to mark World Health Day 2024.',date:'Apr 7, 2024'},
+        {img:'',tag:'Campaign',title:'Blood Donation Drive – OAU Chapter',desc:'OAU chapter partnered with OAUTHC for a successful blood donation drive that collected over 40 pints.',date:'Jun 14, 2024'}
+      ].forEach((n, i) => { %>
+      <div class="news-card animate-on-scroll" style="animation-delay:<%= i*100 %>ms">
+        <div class="news-img"><div class="news-img-placeholder"><i data-feather="heart"></i></div></div>
+        <div class="news-body">
+          <span class="card-tag"><%= n.tag %></span>
+          <h3><%= n.title %></h3>
+          <p><%= n.desc %></p>
+          <div class="news-meta"><i data-feather="calendar"></i> <%= n.date %></div>
+        </div>
+      </div>
+      <% }); %>
+    </div>
+  </div>
+
+  <!-- INDUSTRY -->
+  <div class="tab-pane" id="tab-industry">
+    <div class="news-grid">
+      <% [
+        {tag:'Policy',icon:'book',title:'FG Launches National Health Information Framework 2024',desc:'The Federal Government has launched a new national framework to digitise health records across all public hospitals by 2026.',date:'Sep 2024'},
+        {tag:'Technology',icon:'cpu',title:'NHIA Digitizes Claims Processing',desc:'The National Health Insurance Authority is moving to digital claims processing, creating more opportunities for trained HIM professionals.',date:'Oct 2024'}
+      ].forEach((n, i) => { %>
+      <div class="news-card animate-on-scroll" style="animation-delay:<%= i*100 %>ms">
+        <div class="news-img"><div class="news-img-placeholder"><i data-feather="<%= n.icon %>"></i></div></div>
+        <div class="news-body">
+          <span class="card-tag"><%= n.tag %></span>
+          <h3><%= n.title %></h3>
+          <p><%= n.desc %></p>
+          <div class="news-meta"><i data-feather="calendar"></i> <%= n.date %></div>
+        </div>
+      </div>
+      <% }); %>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

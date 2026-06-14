@@ -1,0 +1,146 @@
+<%- include('partials/head', {title: 'Sports'}) %>
+<%- include('partials/navbar') %>
+
+<div class="page-hero ph-green">
+  <div class="hero-badge" style="background:rgba(239,159,39,0.3);color:var(--gold-mid);border:1px solid rgba(239,159,39,0.4);display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;padding:6px 18px;border-radius:100px;margin-bottom:18px;">
+    <i data-feather="award"></i> Zone D Sports
+  </div>
+  <h1>NAHIMS SW Sports Hub</h1>
+  <p>Football League &middot; Basketball &middot; Athletics &middot; Live Scores</p>
+</div>
+
+<div class="section" data-tab-group="sports">
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="tab-league"><i data-feather="list"></i> League Table</button>
+    <button class="tab-btn" data-tab="tab-fixtures"><i data-feather="calendar"></i> Fixtures</button>
+    <button class="tab-btn" data-tab="tab-results"><i data-feather="check-circle"></i> Results</button>
+    <button class="tab-btn" data-tab="tab-live"><i data-feather="radio"></i> Live Score</button>
+  </div>
+
+  <!-- LEAGUE TABLE -->
+  <div class="tab-pane active" id="tab-league">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+      <div>
+        <div class="section-tag" style="display:inline-flex;margin-bottom:8px;"><i data-feather="award"></i> 2024/2025 Season</div>
+        <h2 style="font-size:24px;font-weight:800;">Football League Table</h2>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="league-table">
+        <thead>
+          <tr>
+            <th>#</th><th>Chapter</th><th>P</th><th>W</th><th>D</th><th>L</th>
+            <th>GF</th><th>GA</th><th>GD</th><th>Pts</th><th>Form</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% db.sportLeague.forEach((team, i) => { %>
+          <tr class="<%= i === 0 ? 'zone-1' : i === 1 ? 'zone-2' : i === 2 ? 'zone-3' : '' %> animate-on-scroll">
+            <td>
+              <span class="pos-badge <%= i === 0 ? 'pos-gold' : i === 1 ? 'pos-silver' : i === 2 ? 'pos-bronze' : '' %>">
+                <%= team.pos %>
+              </span>
+            </td>
+            <td><strong><%= team.team %></strong></td>
+            <td><%= team.p %></td>
+            <td><%= team.w %></td>
+            <td><%= team.d %></td>
+            <td><%= team.l %></td>
+            <td><%= team.gf %></td>
+            <td><%= team.ga %></td>
+            <td><%= team.gf - team.ga >= 0 ? '+' : '' %><%= team.gf - team.ga %></td>
+            <td><strong><%= team.pts %></strong></td>
+            <td>
+              <div class="form-pills">
+                <% (team.form || []).forEach(f => { %>
+                  <span class="fp fp-<%= f.toLowerCase() %>"><%= f %></span>
+                <% }); %>
+              </div>
+            </td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+    <div style="display:flex;gap:20px;margin-top:14px;flex-wrap:wrap;font-size:12px;color:var(--gray);">
+      <span style="display:flex;align-items:center;gap:6px;"><span style="width:14px;height:14px;background:var(--green);border-radius:2px;"></span> Top 2 – Playoff</span>
+      <span style="display:flex;align-items:center;gap:6px;"><span style="width:14px;height:14px;background:#3b82f6;border-radius:2px;"></span> 3rd – Promotion Playoff</span>
+    </div>
+  </div>
+
+  <!-- FIXTURES -->
+  <div class="tab-pane" id="tab-fixtures">
+    <h2 style="font-size:22px;font-weight:800;margin-bottom:24px;">Upcoming Fixtures</h2>
+    <div class="match-grid">
+      <% db.fixtures.forEach(f => { %>
+      <div class="match-card animate-on-scroll">
+        <div class="match-label">
+          <i data-feather="calendar" style="display:inline;width:12px;height:12px;"></i>
+          Matchday <%= f.matchday %> &middot; <%= new Date(f.date).toLocaleDateString('en-NG', {day:'numeric',month:'short',year:'numeric'}) %>
+        </div>
+        <div class="match-teams">
+          <div class="team-side"><h4><%= f.home %></h4></div>
+          <div class="match-vs">VS</div>
+          <div class="team-side" style="text-align:right;"><h4><%= f.away %></h4></div>
+        </div>
+        <div class="match-info">
+          <i data-feather="clock"></i> <%= f.time %>
+          &nbsp;&middot;&nbsp;
+          <i data-feather="map-pin"></i> <%= f.venue %>
+        </div>
+      </div>
+      <% }); %>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="tab-pane" id="tab-results">
+    <h2 style="font-size:22px;font-weight:800;margin-bottom:24px;">Previous Results</h2>
+    <div class="match-grid">
+      <% db.results.forEach(r => { %>
+      <div class="match-card animate-on-scroll">
+        <div class="match-label">
+          Matchday <%= r.matchday %> &middot; <%= new Date(r.date).toLocaleDateString('en-NG', {day:'numeric',month:'short',year:'numeric'}) %>
+        </div>
+        <div class="match-teams">
+          <div class="team-side"><h4><%= r.home %></h4></div>
+          <div class="match-score"><%= r.homeScore %> – <%= r.awayScore %></div>
+          <div class="team-side" style="text-align:right;"><h4><%= r.away %></h4></div>
+        </div>
+        <% if (r.scorers) { %>
+        <div class="match-info" style="justify-content:center;text-align:center;">
+          <i data-feather="target" style="flex-shrink:0;"></i> <%= r.scorers %>
+        </div>
+        <% } %>
+      </div>
+      <% }); %>
+    </div>
+  </div>
+
+  <!-- LIVE SCORE -->
+  <div class="tab-pane" id="tab-live">
+    <div style="text-align:center;padding:50px 20px;">
+      <div style="width:80px;height:80px;background:var(--green-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;">
+        <i data-feather="radio" style="width:36px;height:36px;color:var(--green);"></i>
+      </div>
+      <h2 style="margin-bottom:12px;">Live Match Tracker</h2>
+      <p style="color:var(--gray);font-size:14px;margin-bottom:28px;">Live scores are updated by the Sports Director on match days.</p>
+      <div class="match-card" style="max-width:420px;margin:0 auto;border:2px solid var(--green);">
+        <div class="live-badge" style="justify-content:center;margin-bottom:14px;">
+          <span class="pulse-dot"></span> LIVE &middot; Matchday 9 &middot; 67'
+        </div>
+        <div class="match-label">Feb 15, 2025 &middot; UI Sports Complex</div>
+        <div class="match-teams">
+          <div class="team-side"><h4>UI</h4></div>
+          <div class="match-score">2 – 1</div>
+          <div class="team-side" style="text-align:right;"><h4>OAU</h4></div>
+        </div>
+        <div class="match-info">
+          <i data-feather="target"></i> Eze 12', 45' | Adeleke 33'
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

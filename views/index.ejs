@@ -1,0 +1,289 @@
+<%- include('partials/head', {title: 'Home'}) %>
+<%- include('partials/navbar') %>
+<%- include('partials/ticker') %>
+
+<!-- ═══════════ HERO ═══════════ -->
+<section class="hero">
+  <div class="hero-bg-shapes">
+    <div class="shape"></div><div class="shape"></div><div class="shape"></div>
+  </div>
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <i data-feather="map-pin"></i>
+      Southwest Zone — Zone D
+    </div>
+    <h1>
+      National Association of<br>
+      <span>Health Information</span><br>
+      Management Students
+    </h1>
+    <p class="hero-sub">
+      Uniting HIM students across the Southwest Zone — advancing academics,
+      sports, professional development, and community impact.
+    </p>
+    <div class="hero-btns">
+      <a href="/chapters" class="btn btn-primary">
+        <i data-feather="map-pin"></i> View Chapters
+      </a>
+      <a href="/academic" class="btn btn-white">
+        <i data-feather="book-open"></i> Learning Resources
+      </a>
+      <a href="/sports" class="btn btn-outline">
+        <i data-feather="award"></i> Sports Hub
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ STATS BAR ═══════════ -->
+<div class="stats-bar">
+  <div class="stats-bar-inner">
+    <div class="stat-item animate-on-scroll">
+      <div class="stat-num" data-count="<%= db.site.stats.chapters %>"><%= db.site.stats.chapters %></div>
+      <div class="stat-lbl">Chapters</div>
+    </div>
+    <div class="stat-item animate-on-scroll">
+      <div class="stat-num" style="font-size:26px;"><%= db.site.stats.members %></div>
+      <div class="stat-lbl">Student Members</div>
+    </div>
+    <div class="stat-item animate-on-scroll">
+      <div class="stat-num" data-count="<%= db.site.stats.states %>"><%= db.site.stats.states %></div>
+      <div class="stat-lbl">States Represented</div>
+    </div>
+    <div class="stat-item animate-on-scroll">
+      <div class="stat-num" data-count="<%= db.site.stats.years %>"><%= db.site.stats.years %></div>
+      <div class="stat-lbl">Years of Excellence</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ EXECUTIVES ═══════════ -->
+<div class="section-bg" style="padding: 80px 0;">
+  <div class="section">
+    <div class="section-header animate-on-scroll">
+      <div class="section-tag"><i data-feather="users"></i> Leadership</div>
+      <h2>Meet Our Executives</h2>
+      <p>The dedicated student leaders driving NAHIMS SW forward</p>
+    </div>
+    <div class="execs-grid">
+      <% db.executives.forEach((exec, i) => { %>
+      <div class="exec-card <%= exec.position.toLowerCase().includes('president') && !exec.position.toLowerCase().includes('vice') && !exec.position.toLowerCase().includes('past') ? 'is-president' : '' %> animate-on-scroll" style="animation-delay: <%= i * 60 %>ms">
+        <div class="exec-avatar" style="background:<%= exec.color %>;">
+          <% if (exec.image) { %>
+            <img src="<%= exec.image %>" alt="<%= exec.name %>">
+          <% } else { %>
+            <%= exec.initials %>
+          <% } %>
+        </div>
+        <div class="exec-name"><%= exec.name %></div>
+        <div class="exec-pos"><%= exec.position %></div>
+        <div class="exec-school"><%= exec.school %></div>
+      </div>
+      <% }); %>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SIGNATURE EVENTS ═══════════ -->
+<div style="background: var(--gray-light); padding: 80px 0;">
+  <div class="section">
+    <div class="section-header animate-on-scroll">
+      <div class="section-tag"><i data-feather="star"></i> Signature Events</div>
+      <h2>Our Most Impactful Events</h2>
+      <p>Initiatives, summits, and programmes that define the NAHIMS SW legacy</p>
+    </div>
+
+    <!-- CONVENTION (featured – full width) -->
+    <% const convention = featuredEvents.find(e => e.category === 'Convention'); %>
+    <% if (convention) { %>
+    <a href="/events/<%= convention.slug %>" style="display:block;text-decoration:none;color:inherit;">
+      <div class="event-card-featured animate-on-scroll">
+        <div class="event-img">
+          <% if (convention.image) { %>
+            <img src="<%= convention.image %>" alt="<%= convention.title %>">
+          <% } else { %>
+            <div class="event-img-placeholder">
+              <i data-feather="flag" style="width:64px;height:64px;opacity:0.25;color:var(--green);"></i>
+              <span>Convention Photo</span>
+            </div>
+          <% } %>
+          <span class="event-cat-badge"><i data-feather="flag" style="display:inline;width:11px;height:11px;"></i> Convention</span>
+        </div>
+        <div class="event-body">
+          <div class="convention-badge">
+            <i data-feather="award"></i> Historic Event
+          </div>
+          <div class="event-organizer">
+            <i data-feather="user"></i> <%= convention.organizer %> &middot; <%= convention.organizerRole %>
+          </div>
+          <h3><%= convention.title %></h3>
+          <p><%= convention.description %></p>
+          <div class="event-meta">
+            <div class="event-meta-item"><i data-feather="calendar"></i> <%= new Date(convention.date).toLocaleDateString('en-NG', {year:'numeric',month:'long',day:'numeric'}) %></div>
+            <div class="event-meta-item"><i data-feather="map-pin"></i> <%= convention.location %></div>
+          </div>
+          <div class="event-footer" style="padding-top:20px; border-top: 1px solid var(--border); margin-top:20px;">
+            <span class="btn btn-green btn-sm"><i data-feather="arrow-right"></i> Read Full Story</span>
+          </div>
+        </div>
+      </div>
+    </a>
+    <% } %>
+
+    <!-- OTHER EVENTS GRID (pad a girl + tech events) -->
+    <div class="cards-grid" style="margin-top: 28px;">
+      <% featuredEvents.filter(e => e.category !== 'Convention').forEach((event, i) => { %>
+      <div class="event-card animate-on-scroll" style="animation-delay: <%= i * 100 %>ms">
+        <div class="event-img">
+          <% if (event.image) { %>
+            <img src="<%= event.image %>" alt="<%= event.title %>">
+          <% } else { %>
+            <div class="event-img-placeholder">
+              <% if (event.category === 'Social') { %>
+                <i data-feather="heart" style="width:52px;height:52px;opacity:0.25;color:var(--green);"></i>
+              <% } else { %>
+                <i data-feather="cpu" style="width:52px;height:52px;opacity:0.25;color:var(--green);"></i>
+              <% } %>
+              <span>Event Photo</span>
+            </div>
+          <% } %>
+          <span class="event-cat-badge">
+            <% if (event.category === 'Social') { %>
+              <i data-feather="heart" style="display:inline;width:11px;height:11px;"></i>
+            <% } else { %>
+              <i data-feather="cpu" style="display:inline;width:11px;height:11px;"></i>
+            <% } %>
+            <%= event.category %>
+          </span>
+        </div>
+        <div class="event-body">
+          <div class="event-organizer">
+            <i data-feather="user"></i> <%= event.organizer %>
+          </div>
+          <h3><%= event.title %></h3>
+          <p><%= event.description.substring(0, 160) %>...</p>
+          <div class="event-meta">
+            <div class="event-meta-item"><i data-feather="calendar"></i> <%= new Date(event.date).toLocaleDateString('en-NG', {year:'numeric',month:'short',day:'numeric'}) %></div>
+            <div class="event-meta-item"><i data-feather="map-pin"></i> <%= event.location %></div>
+          </div>
+        </div>
+        <div class="event-footer">
+          <a href="/events/<%= event.slug %>" class="btn btn-green btn-sm" style="text-decoration:none;">
+            <i data-feather="arrow-right"></i> Read More
+          </a>
+        </div>
+      </div>
+      <% }); %>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ LATEST NEWS ═══════════ -->
+<div class="section-bg" style="padding: 80px 0;">
+  <div class="section">
+    <div class="section-header animate-on-scroll">
+      <div class="section-tag"><i data-feather="rss"></i> Latest</div>
+      <h2>News &amp; Announcements</h2>
+      <p>Stay informed with the latest from NAHIMS SW</p>
+    </div>
+    <div class="news-grid">
+      <% latestNews.forEach((article, i) => { %>
+      <div class="news-card animate-on-scroll" style="animation-delay: <%= i * 100 %>ms">
+        <div class="news-img">
+          <% if (article.image) { %>
+            <img src="<%= article.image %>" alt="<%= article.title %>">
+          <% } else { %>
+            <div class="news-img-placeholder">
+              <i data-feather="file-text"></i>
+            </div>
+          <% } %>
+        </div>
+        <div class="news-body">
+          <span class="card-tag"><%= article.category %></span>
+          <h3><%= article.title %></h3>
+          <p><%= article.excerpt %></p>
+          <div class="news-meta">
+            <i data-feather="calendar"></i>
+            <%= new Date(article.date).toLocaleDateString('en-NG', {year:'numeric',month:'long',day:'numeric'}) %>
+            &middot; <%= article.author %>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span style="display:flex;align-items:center;gap:5px;"><i data-feather="clock" style="width:13px;height:13px;"></i> <%= article.date %></span>
+          <a href="/news/<%= article.slug %>">Read more <i data-feather="arrow-right"></i></a>
+        </div>
+      </div>
+      <% }); %>
+    </div>
+    <div style="text-align:center;margin-top:36px;">
+      <a href="/news" class="btn btn-green animate-on-scroll">
+        <i data-feather="rss"></i> View All News
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ HEALTH AWARENESS ═══════════ -->
+<div class="awareness-strip" style="background: var(--gray-light);">
+  <div class="awareness-strip-inner">
+    <div class="section-header animate-on-scroll">
+      <div class="section-tag"><i data-feather="heart"></i> Health Education</div>
+      <h2>Health Awareness</h2>
+      <p>As HIM students, we lead health education in our communities</p>
+    </div>
+    <div class="awareness-cards">
+      <div class="awareness-card aw-green animate-on-scroll">
+        <i data-feather="activity"></i>
+        <h3>Know Your Blood Group</h3>
+        <p>Understanding your blood group is critical in emergencies. Visit any hospital or clinic for a free blood group test.</p>
+        <a href="/news" class="aw-link"><i data-feather="arrow-right"></i> Learn more</a>
+      </div>
+      <div class="awareness-card aw-blue animate-on-scroll">
+        <i data-feather="smile"></i>
+        <h3>Mental Health Matters</h3>
+        <p>Student life can be stressful. Talk to someone. NAHIMS SW supports mental wellness in all our chapters.</p>
+        <a href="/news" class="aw-link"><i data-feather="arrow-right"></i> Resources</a>
+      </div>
+      <div class="awareness-card aw-red animate-on-scroll">
+        <i data-feather="shield"></i>
+        <h3>Malaria Prevention</h3>
+        <p>Use insecticide-treated nets. Seek treatment early. Malaria is preventable — spread awareness in your community.</p>
+        <a href="/news" class="aw-link"><i data-feather="arrow-right"></i> Share this</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ QUICK ACCESS ═══════════ -->
+<div class="section-bg" style="padding: 80px 0;">
+  <div class="section">
+    <div class="section-header animate-on-scroll">
+      <div class="section-tag"><i data-feather="grid"></i> Quick Access</div>
+      <h2>What Are You Looking For?</h2>
+    </div>
+    <div class="quick-links-grid">
+      <a href="/sports" class="quick-link ql-green animate-on-scroll" style="text-decoration:none;">
+        <i data-feather="award"></i>
+        <div class="quick-link-title">Sports</div>
+        <div class="quick-link-sub">League table, fixtures, results</div>
+      </a>
+      <a href="/academic" class="quick-link ql-blue animate-on-scroll" style="text-decoration:none;">
+        <i data-feather="book-open"></i>
+        <div class="quick-link-title">Academic</div>
+        <div class="quick-link-sub">Materials, videos, events</div>
+      </a>
+      <a href="/news" class="quick-link ql-red animate-on-scroll" style="text-decoration:none;">
+        <i data-feather="rss"></i>
+        <div class="quick-link-title">News &amp; Awareness</div>
+        <div class="quick-link-sub">Health tips, announcements</div>
+      </a>
+      <a href="/chapters" class="quick-link ql-purple animate-on-scroll" style="text-decoration:none;">
+        <i data-feather="map-pin"></i>
+        <div class="quick-link-title">Chapters</div>
+        <div class="quick-link-sub">List, contacts, dues status</div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

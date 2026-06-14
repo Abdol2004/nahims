@@ -1,0 +1,48 @@
+<%- include('partials/head', {title: 'Blog'}) %>
+<%- include('partials/navbar') %>
+
+<div class="page-hero ph-dark">
+  <div class="hero-badge" style="background:rgba(239,159,39,0.3);color:var(--gold-mid);border:1px solid rgba(239,159,39,0.4);display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;padding:6px 18px;border-radius:100px;margin-bottom:18px;">
+    <i data-feather="edit-3"></i> NAHIMS SW Blog
+  </div>
+  <h1>Blog &amp; Articles</h1>
+  <p>Opinions, stories, and insights from NAHIMS SW members</p>
+</div>
+
+<div class="section">
+  <div class="cards-grid">
+    <% [
+      {tag:'Opinion',icon:'message-circle',title:'Why HIM is the Backbone of Modern Healthcare',author:'Olamide Adesanya',date:'Jan 10, 2025',
+        excerpt:'Health information management is not just about paperwork — it is the invisible infrastructure that keeps healthcare systems running.'},
+      {tag:'Experience',icon:'briefcase',title:'My SIWES Experience at University College Hospital Ibadan',author:'Funmi Adeola',date:'Dec 18, 2024',
+        excerpt:'A personal account of student industrial work experience at UCH Ibadan — challenges, lessons, and career insights for every HIM student.'},
+      {tag:'Career',icon:'trending-up',title:'5 Career Paths You Did Not Know Existed in HIM',author:'Tolu Fashola',date:'Dec 5, 2024',
+        excerpt:'From clinical informatics to health data analytics — the HIM profession offers far more than hospital record management.'},
+      {tag:'Technology',icon:'cpu',title:'Artificial Intelligence and the Future of Health Records in Nigeria',author:'Adewale Makinde',date:'Nov 22, 2024',
+        excerpt:'How AI is beginning to transform health documentation, coding, and retrieval in Nigerian hospital settings.'},
+      {tag:'Academics',icon:'book-open',title:'How to Ace Your HIM Exams: Study Strategies That Work',author:'Kehinde Ogunleye',date:'Nov 10, 2024',
+        excerpt:'Practical, evidence-based study techniques specifically tailored for health information management students.'},
+      {tag:'Community',icon:'users',title:'The NAHIMS SW Family: What This Association Means',author:'Fatima Ibrahim',date:'Oct 28, 2024',
+        excerpt:'Beyond the academics and sports — the community, brotherhood, and sisterhood that NAHIMS SW has built in the Southwest.'}
+    ].forEach((post, i) => { %>
+    <div class="card animate-on-scroll" style="animation-delay:<%= i*80 %>ms">
+      <div class="card-img-placeholder">
+        <i data-feather="<%= post.icon %>"></i>
+      </div>
+      <div class="card-body">
+        <span class="card-tag"><i data-feather="<%= post.icon %>"></i> <%= post.tag %></span>
+        <h3><%= post.title %></h3>
+        <p><%= post.excerpt %></p>
+      </div>
+      <div class="card-footer">
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;">
+          <i data-feather="user" style="width:12px;height:12px;"></i> <%= post.author %> &middot; <%= post.date %>
+        </span>
+        <a href="#">Read <i data-feather="arrow-right"></i></a>
+      </div>
+    </div>
+    <% }); %>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

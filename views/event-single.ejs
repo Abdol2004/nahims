@@ -1,0 +1,33 @@
+<%- include('partials/head', {title: event.title}) %>
+<%- include('partials/navbar') %>
+
+<div class="content-single">
+  <a href="/" class="back-link"><i data-feather="arrow-left"></i> Back to Home</a>
+
+  <% if (event.image) { %>
+  <div class="content-hero-img"><img src="<%= event.image %>" alt="<%= event.title %>"></div>
+  <% } else { %>
+  <div class="content-hero-img-placeholder">
+    <i data-feather="<%= event.category === 'Social' ? 'heart' : event.category === 'Convention' ? 'flag' : 'cpu' %>"></i>
+  </div>
+  <% } %>
+
+  <span class="card-tag" style="margin-bottom:14px;display:inline-flex;"><%= event.category %></span>
+  <h1><%= event.title %></h1>
+  <div class="content-meta">
+    <div class="meta-item"><i data-feather="user"></i> <%= event.organizer %> &middot; <em><%= event.organizerRole %></em></div>
+    <div class="meta-item"><i data-feather="calendar"></i> <%= new Date(event.date).toLocaleDateString('en-NG', {year:'numeric',month:'long',day:'numeric'}) %></div>
+    <div class="meta-item"><i data-feather="map-pin"></i> <%= event.location %></div>
+  </div>
+
+  <div class="content-body">
+    <% event.fullContent.split('\n').forEach(para => { if(para.trim()) { %><p><%= para %></p><% } }); %>
+  </div>
+
+  <div style="margin-top:40px;padding-top:24px;border-top:1px solid var(--border);display:flex;gap:12px;flex-wrap:wrap;">
+    <a href="/" class="btn btn-green btn-sm"><i data-feather="home"></i> Home</a>
+    <a href="/news" class="btn btn-outline btn-sm" style="color:var(--dark);border-color:var(--border);"><i data-feather="rss"></i> News</a>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

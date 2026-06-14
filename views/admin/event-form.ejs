@@ -1,0 +1,86 @@
+<%- include('layout-start', {title: event ? 'Edit Event' : 'Add Event', active: 'events'}) %>
+
+<div class="admin-topbar">
+  <div>
+    <h1><%= event ? 'Edit Event' : 'Add New Event' %></h1>
+    <a href="/admin/events" style="font-size:13px;color:var(--green);display:flex;align-items:center;gap:5px;margin-top:4px;">
+      <i data-feather="arrow-left" style="width:14px;height:14px;"></i> Back to Events
+    </a>
+  </div>
+</div>
+
+<div class="admin-card">
+  <form method="POST" action="<%= action %>" enctype="multipart/form-data">
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Event Title *</label>
+        <input type="text" name="title" class="form-input" value="<%= event ? event.title : '' %>" required placeholder="e.g. Pad A Girl Initiative 2025">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category *</label>
+        <select name="category" class="form-select" required>
+          <option value="">Select category</option>
+          <% ['Social','Technology','Convention','Academic','Sports','Health'].forEach(c => { %>
+          <option <%= event && event.category === c ? 'selected' : '' %>><%= c %></option>
+          <% }); %>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Organizer Name *</label>
+        <input type="text" name="organizer" class="form-input" value="<%= event ? event.organizer : '' %>" required placeholder="e.g. Comrade Waheed Aliyat Olajumoke">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Organizer Role</label>
+        <input type="text" name="organizerRole" class="form-input" value="<%= event ? event.organizerRole : '' %>" placeholder="e.g. Welfare Director">
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Date *</label>
+        <input type="date" name="date" class="form-input" value="<%= event ? event.date : '' %>" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Location *</label>
+        <input type="text" name="location" class="form-input" value="<%= event ? event.location : '' %>" required placeholder="e.g. University of Ibadan">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Short Description *</label>
+      <textarea name="description" class="form-textarea" required placeholder="Brief description shown on homepage card (2–3 sentences)"><%= event ? event.description : '' %></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Full Content / Story *</label>
+      <textarea name="fullContent" class="form-textarea" style="min-height:200px;" required placeholder="Full article content shown on the event detail page. Use new lines to separate paragraphs."><%= event ? event.fullContent : '' %></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Feature Image</label>
+      <% if (event && event.image) { %>
+        <div style="margin-bottom:10px;">
+          <img id="imgPreview" src="<%= event.image %>" alt="" style="width:200px;height:130px;object-fit:cover;border-radius:8px;border:1px solid var(--border);">
+        </div>
+      <% } else { %>
+        <img id="imgPreview" style="display:none;width:200px;height:130px;object-fit:cover;border-radius:8px;border:1px solid var(--border);margin-bottom:10px;">
+      <% } %>
+      <input type="file" name="image" class="form-input" accept="image/*" data-preview="imgPreview" style="padding:8px;">
+      <p style="font-size:12px;color:var(--gray);margin-top:6px;"><i data-feather="info" style="display:inline;width:12px;height:12px;"></i> Leave empty to keep existing image. Max 5MB. JPG/PNG recommended.</p>
+    </div>
+    <div style="display:flex;gap:20px;flex-wrap:wrap;">
+      <div class="form-check">
+        <input type="checkbox" name="featured" id="featured" <%= event && event.featured ? 'checked' : '' %>>
+        <label for="featured">Featured on Homepage</label>
+      </div>
+      <div class="form-check">
+        <input type="checkbox" name="published" id="published" <%= !event || event.published ? 'checked' : '' %>>
+        <label for="published">Published (visible on site)</label>
+      </div>
+    </div>
+    <div style="margin-top:24px;display:flex;gap:12px;">
+      <button type="submit" class="btn btn-green"><i data-feather="save"></i> <%= event ? 'Save Changes' : 'Add Event' %></button>
+      <a href="/admin/events" class="btn btn-sm" style="background:var(--gray-light);color:var(--dark);">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<%- include('layout-end') %>

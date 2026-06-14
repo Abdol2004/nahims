@@ -1,0 +1,42 @@
+<%- include('layout-start', {title: 'Events', active: 'events'}) %>
+
+<div class="admin-topbar">
+  <h1>Events</h1>
+  <a href="/admin/events/new" class="btn btn-green btn-sm"><i data-feather="plus"></i> Add Event</a>
+</div>
+
+<% if (success) { %>
+<div class="alert alert-success"><i data-feather="check-circle"></i> <%= success %></div>
+<% } %>
+
+<div class="admin-card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Title</th><th>Category</th><th>Organizer</th><th>Date</th><th>Status</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        <% db.events.forEach(ev => { %>
+        <tr>
+          <td><strong><%= ev.title %></strong></td>
+          <td><span class="badge badge-paid"><%= ev.category %></span></td>
+          <td style="font-size:13px;"><%= ev.organizer %></td>
+          <td style="font-size:13px;"><%= ev.date %></td>
+          <td><span class="badge <%= ev.published ? 'badge-paid' : 'badge-unpaid' %>"><%= ev.published ? 'Published' : 'Draft' %></span></td>
+          <td>
+            <div class="admin-table-actions">
+              <a href="/events/<%= ev.slug %>" target="_blank" class="btn btn-xs btn-outline" style="color:var(--gray);border-color:var(--border);"><i data-feather="eye"></i></a>
+              <a href="/admin/events/edit/<%= ev.id %>" class="btn btn-green btn-xs"><i data-feather="edit-2"></i> Edit</a>
+              <form method="POST" action="/admin/events/delete/<%= ev.id %>" data-confirm="Delete this event?">
+                <button class="btn btn-xs" style="background:#FEF2F2;color:#dc2626;border:1px solid #fecaca;"><i data-feather="trash-2"></i></button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('layout-end') %>

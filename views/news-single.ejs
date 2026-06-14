@@ -1,0 +1,29 @@
+<%- include('partials/head', {title: article.title}) %>
+<%- include('partials/navbar') %>
+
+<div class="content-single">
+  <a href="/news" class="back-link"><i data-feather="arrow-left"></i> Back to News</a>
+
+  <% if (article.image) { %>
+  <div class="content-hero-img"><img src="<%= article.image %>" alt="<%= article.title %>"></div>
+  <% } else { %>
+  <div class="content-hero-img-placeholder"><i data-feather="file-text"></i></div>
+  <% } %>
+
+  <span class="card-tag" style="margin-bottom:14px;display:inline-flex;"><%= article.category %></span>
+  <h1><%= article.title %></h1>
+  <div class="content-meta">
+    <div class="meta-item"><i data-feather="calendar"></i> <%= new Date(article.date).toLocaleDateString('en-NG', {year:'numeric',month:'long',day:'numeric'}) %></div>
+    <div class="meta-item"><i data-feather="user"></i> <%= article.author %></div>
+  </div>
+
+  <div class="content-body">
+    <% article.content.split('\n').forEach(para => { if(para.trim()) { %><p><%= para %></p><% } }); %>
+  </div>
+
+  <div style="margin-top:40px;padding-top:24px;border-top:1px solid var(--border);">
+    <a href="/news" class="btn btn-green btn-sm"><i data-feather="arrow-left"></i> All News</a>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

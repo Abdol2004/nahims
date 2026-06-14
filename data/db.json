@@ -1,0 +1,566 @@
+{
+  "site": {
+    "name": "NAHIMS SW",
+    "fullName": "National Association of Health Information Management Students",
+    "zone": "Southwest Zone (Zone D)",
+    "email": "nahimssw@gmail.com",
+    "phone": "+234 7048594341",
+    "twitter": "@nahimssw",
+    "instagram": "@nahimssw",
+    "facebook": "NAHIMS SW",
+    "stats": {
+      "chapters": "12",
+      "members": "3,000+",
+      "states": "7",
+      "years": "12"
+    }
+  },
+  "executives": [
+    {
+      "id": 1,
+      "name": "Olamide Adesanya",
+      "position": "Zonal President",
+      "school": "University of Ibadan",
+      "initials": "OA",
+      "color": "#EF9F27",
+      "image": ""
+    },
+    {
+      "id": 2,
+      "name": "Toluwalope Fashola",
+      "position": "Vice President",
+      "school": "LAUTECH, Ogbomoso",
+      "initials": "TF",
+      "color": "#0B6E4F",
+      "image": ""
+    },
+    {
+      "id": 3,
+      "name": "Adewale Makinde",
+      "position": "General Secretary",
+      "school": "UNILAG, Lagos",
+      "initials": "AM",
+      "color": "#0B6E4F",
+      "image": ""
+    },
+    {
+      "id": 4,
+      "name": "Kehinde Ogunleye",
+      "position": "Financial Secretary",
+      "school": "OAU, Ile-Ife",
+      "initials": "KO",
+      "color": "#0B6E4F",
+      "image": ""
+    },
+    {
+      "id": 5,
+      "name": "Fatima Ibrahim",
+      "position": "Public Relations Officer",
+      "school": "UNIBEN, Benin City",
+      "initials": "FI",
+      "color": "#0B6E4F",
+      "image": ""
+    },
+    {
+      "id": 6,
+      "name": "Babajide Dada",
+      "position": "Sports Director",
+      "school": "Olabisi Onabanjo University",
+      "initials": "BD",
+      "color": "#0B6E4F",
+      "image": ""
+    }
+  ],
+  "events": [
+    {
+      "id": 1,
+      "title": "Pad A Girl Initiative",
+      "slug": "pad-a-girl-2024",
+      "category": "Social",
+      "organizer": "Comrade Waheed Aliyat Olajumoke",
+      "organizerRole": "Welfare Director",
+      "date": "2024-10-15",
+      "location": "University of Ibadan",
+      "description": "The Pad A Girl Initiative is a menstrual hygiene outreach programme that provides free sanitary products and reproductive health education to underprivileged female students across the Southwest Zone. Led by Comrade Waheed Aliyat Olajumoke, this initiative has touched the lives of over 500 female students across our chapters.",
+      "fullContent": "The Pad A Girl Initiative stands as one of NAHIMS SW's most impactful social responsibility programmes. Under the passionate leadership of Comrade Waheed Aliyat Olajumoke, the initiative distributed free sanitary pads and educated young women on menstrual hygiene management.\r\n\r\nThe 2024 edition reached 6 chapters across the Southwest, impacting over 500 girls. Health information management students took the lead in conducting health talks, recording data, and ensuring every participant received adequate support.\r\n\r\nThis initiative embodies the NAHIMS SW spirit: using our health information expertise not just in hospitals, but in communities where it matters most.",
+      "image": "/images/events/1781429958429.jpeg",
+      "featured": true,
+      "published": true
+    },
+    {
+      "id": 2,
+      "title": "Onboard3 Web3 Meetup OSCOHEALTH",
+      "slug": "him-tech-summit-2024",
+      "category": "Technology",
+      "organizer": "Comrade Abdulfatah Abdullahi",
+      "organizerRole": "Director of Tech & Innovation",
+      "date": "2026-03-27",
+      "location": "OSCOHEALTH, Ilesa",
+      "description": "A groundbreaking technology event exploring the intersection of digital innovation. Hosted by Comrade Abdulfatah Abdullahi, the summit featured live demos of web3, blockchain workshops, and presentations by industry professionals.",
+      "fullContent": "The Onboard3 Web3 Meetup OSCOHEALTH 2026, conceptualised and executed by Comrade Abdulfatah Abdullahi, marked a new era for NAHIMS SW's engagement with technology.\r\n\r\nThe summit brought together over 100 students and 2 industry professionals to explore how technology is reshaping health information management in Nigeria. Sessions covered web3, blockchai, ai  and career pathways in health informatics.\r\n\r\nComrade Abdulfatah's vision was clear: 'As future HIM professionals, we must be technology-first thinkers. The hospitals of tomorrow will run on systems we understand better than anyone.'",
+      "image": "/images/events/1781430132583.jpg",
+      "featured": true,
+      "published": true
+    },
+    {
+      "id": 3,
+      "title": "Onboard3 Web3 Meetup UITH",
+      "slug": "digital-health-workshop-2024",
+      "category": "Technology",
+      "organizer": "Comrade Abdulfatah Abdullahi",
+      "organizerRole": "Director of Tech & Innovation ",
+      "date": "2026-03-14",
+      "location": "University of Ilorin Teaching Hospital",
+      "description": "A hands-on workshop on web3, mobile health applications, and money making in web3. The first tech event hosted by Comrade Abdulfatah Abdullahi focused on practical skills that students can apply immediately in clinical settings.",
+      "fullContent": "Following the massive success of the HIM Tech Summit, Comrade Abdulfatah Abdullahi returned with an even more practical offering: the Web3 Innovation Workshop.\r\n\r\nHeld at UITH, the full-day workshop divided participants into practical tracks: a web3 phase , a mobile health app development intro session, and a blockchain data privacy masterclass led by a blockchain expert from the University of Ilorin.\r\n\r\nOver 180 students attended, with 95% rating the event 'excellent' in post-event surveys. Several participants reported securing internships with health tech companies as a direct result of connections made at the workshop.",
+      "image": "/images/events/1781430285530.jpg",
+      "featured": true,
+      "published": true
+    },
+    {
+      "id": 4,
+      "title": "NAHIMS SW Annual Convention 2026",
+      "slug": "convention-2023",
+      "category": "Convention",
+      "organizer": "Past President Comrade Ajayi Abiodun Greatness",
+      "organizerRole": "Past Zonal President",
+      "date": "2026-06-03",
+      "location": "CHTA,Akure",
+      "description": "The landmark annual convention hosted under the administration of Past President Comrade Ajayi Abiodun Greatness. A five-day event that brought together all 15 chapters, featured the educative program, fun and networking sessions and executive elections.",
+      "fullContent": "Under the visionary leadership of Past President Comrade Ajayi Abiodun Greatness, the 2026NAHIMS SW Annual Convention became the most impactful in the association's history.\r\n\r\nHeld at the historic campus of College of Health Tech Akure , the five-day convention drew over 100 delegates from all 15 Southwest chapters. Key highlights included:\r\n\r\n- Educational Session: High Keynote speaker were invited to speak about Politics, Tech and Training\r\n- Executive Elections: The current executive team was democratically elected\r\n- Sport Tournament: A football competition was organized during the convention\r\n- Gyration and Cultural Night: A celebration of the diverse cultures across the seven Southwest states\r\n\r\nComrade Ajayi Abiodun Greatness left an enduring legacy, transforming NAHIMS SW into a stronger, more organised, and more impactful association.",
+      "image": "/images/events/1781430742651.jpg",
+      "featured": true,
+      "published": true
+    }
+  ],
+  "news": [
+    {
+      "id": 1,
+      "title": "NAHIMS SW Annual Due 2026/2027  – Registration Open",
+      "slug": "summit-2025",
+      "category": "Official",
+      "date": "2025-01-05",
+      "author": "Admin",
+      "excerpt": "The 2026/2027 annual due registration is open and all chapters are advised to start making payment.",
+      "content": "The 2026/2027 annual dues registration is now open. All chapters are advised to begin payment processing and complete their registrations within the stipulated period. Chapters should ensure that payments are made promptly to maintain good standing and access all benefits, programs, and activities for the new session.",
+      "image": "",
+      "published": true
+    },
+    {
+      "id": 2,
+      "title": "2025 Annual Due Payment Notice",
+      "slug": "due-notice-2025",
+      "category": "Finance",
+      "date": "2026-06-24",
+      "author": "Financial Secretary",
+      "excerpt": "All chapters are reminded to pay their 2025 annual dues before April 31, 2027.",
+      "content": "All NAHIMS SW chapters are hereby notified to complete payment of their 2027 annual dues on or before April 31, 2027. Failure to pay will result in suspension of chapter privileges including voting rights at the 2027 summit. Payment status is tracked on the Chapters page.",
+      "image": "",
+      "published": true
+    }
+  ],
+  "chapters": [
+    {
+      "id": 1,
+      "school": "University of Ibadan",
+      "state": "Oyo",
+      "president": "Oluwafemi Adeyemi",
+      "phone": "08012345678",
+      "email": "him.ui@gmail.com",
+      "due": "Paid",
+      "founded": "2019"
+    },
+    {
+      "id": 2,
+      "school": "OAU, Ile-Ife",
+      "state": "Osun",
+      "president": "Chidinma Okonkwo",
+      "phone": "08123456789",
+      "email": "him.oau@gmail.com",
+      "due": "Paid",
+      "founded": "2019"
+    },
+    {
+      "id": 3,
+      "school": "LAUTECH, Ogbomoso",
+      "state": "Oyo",
+      "president": "Saliu Abubakar",
+      "phone": "08034567890",
+      "email": "him.lautech@gmail.com",
+      "due": "Paid",
+      "founded": "2020"
+    },
+    {
+      "id": 4,
+      "school": "UNILAG, Lagos",
+      "state": "Lagos",
+      "president": "Adaeze Nwosu",
+      "phone": "08145678901",
+      "email": "him.unilag@gmail.com",
+      "due": "Paid",
+      "founded": "2020"
+    },
+    {
+      "id": 5,
+      "school": "Olabisi Onabanjo University",
+      "state": "Ogun",
+      "president": "Rasheed Ogundimu",
+      "phone": "08056789012",
+      "email": "him.oou@gmail.com",
+      "due": "Pending",
+      "founded": "2021"
+    },
+    {
+      "id": 6,
+      "school": "UNIBEN, Benin City",
+      "state": "Edo",
+      "president": "Precious Efe",
+      "phone": "08167890123",
+      "email": "him.uniben@gmail.com",
+      "due": "Unpaid",
+      "founded": "2021"
+    },
+    {
+      "id": 7,
+      "school": "FUNAAB, Abeokuta",
+      "state": "Ogun",
+      "president": "Tunde Bankole",
+      "phone": "08078901234",
+      "email": "him.funaab@gmail.com",
+      "due": "Paid",
+      "founded": "2021"
+    },
+    {
+      "id": 8,
+      "school": "Ekiti State University",
+      "state": "Ekiti",
+      "president": "Blessing Adeniyi",
+      "phone": "08189012345",
+      "email": "him.eksu@gmail.com",
+      "due": "Unpaid",
+      "founded": "2022"
+    },
+    {
+      "id": 9,
+      "school": "FUTA, Akure",
+      "state": "Ondo",
+      "president": "Kayode Olatunji",
+      "phone": "08090123456",
+      "email": "him.futa@gmail.com",
+      "due": "Pending",
+      "founded": "2022"
+    },
+    {
+      "id": 10,
+      "school": "Lagos State University",
+      "state": "Lagos",
+      "president": "Nkechi Obiora",
+      "phone": "08101234567",
+      "email": "him.lasu@gmail.com",
+      "due": "Paid",
+      "founded": "2022"
+    },
+    {
+      "id": 11,
+      "school": "Bowen University, Iwo",
+      "state": "Oyo",
+      "president": "Samuel Adejumo",
+      "phone": "08012345679",
+      "email": "him.bowen@gmail.com",
+      "due": "Paid",
+      "founded": "2023"
+    },
+    {
+      "id": 12,
+      "school": "Uniosun, Osogbo",
+      "state": "Osun",
+      "president": "Mariam Lawal",
+      "phone": "08023456780",
+      "email": "him.uniosun@gmail.com",
+      "due": "Unpaid",
+      "founded": "2023"
+    }
+  ],
+  "sportLeague": [
+    {
+      "pos": 1,
+      "team": "University of Ibadan",
+      "p": 8,
+      "w": 6,
+      "d": 1,
+      "l": 1,
+      "gf": 18,
+      "ga": 7,
+      "pts": 19,
+      "form": [
+        "W",
+        "W",
+        "D",
+        "W",
+        "W"
+      ]
+    },
+    {
+      "pos": 2,
+      "team": "OAU Ile-Ife",
+      "p": 8,
+      "w": 5,
+      "d": 2,
+      "l": 1,
+      "gf": 15,
+      "ga": 8,
+      "pts": 17,
+      "form": [
+        "W",
+        "D",
+        "W",
+        "W",
+        "L"
+      ]
+    },
+    {
+      "pos": 3,
+      "team": "LAUTECH",
+      "p": 8,
+      "w": 4,
+      "d": 2,
+      "l": 2,
+      "gf": 14,
+      "ga": 10,
+      "pts": 14,
+      "form": [
+        "W",
+        "L",
+        "D",
+        "W",
+        "W"
+      ]
+    },
+    {
+      "pos": 4,
+      "team": "UNILAG",
+      "p": 8,
+      "w": 4,
+      "d": 1,
+      "l": 3,
+      "gf": 12,
+      "ga": 11,
+      "pts": 13,
+      "form": [
+        "L",
+        "W",
+        "W",
+        "L",
+        "W"
+      ]
+    },
+    {
+      "pos": 5,
+      "team": "OOU",
+      "p": 8,
+      "w": 3,
+      "d": 1,
+      "l": 4,
+      "gf": 10,
+      "ga": 14,
+      "pts": 10,
+      "form": [
+        "L",
+        "L",
+        "W",
+        "W",
+        "L"
+      ]
+    },
+    {
+      "pos": 6,
+      "team": "UNIBEN",
+      "p": 8,
+      "w": 2,
+      "d": 2,
+      "l": 4,
+      "gf": 9,
+      "ga": 14,
+      "pts": 8,
+      "form": [
+        "L",
+        "W",
+        "D",
+        "L",
+        "L"
+      ]
+    },
+    {
+      "pos": 7,
+      "team": "FUNAAB",
+      "p": 8,
+      "w": 1,
+      "d": 2,
+      "l": 5,
+      "gf": 6,
+      "ga": 16,
+      "pts": 5,
+      "form": [
+        "L",
+        "D",
+        "L",
+        "L",
+        "D"
+      ]
+    },
+    {
+      "pos": 8,
+      "team": "EKSU",
+      "p": 8,
+      "w": 0,
+      "d": 3,
+      "l": 5,
+      "gf": 4,
+      "ga": 18,
+      "pts": 3,
+      "form": [
+        "D",
+        "L",
+        "L",
+        "D",
+        "L"
+      ]
+    }
+  ],
+  "fixtures": [
+    {
+      "id": 1,
+      "home": "University of Ibadan",
+      "away": "OAU Ile-Ife",
+      "date": "2025-02-15",
+      "time": "14:00",
+      "venue": "UI Sports Complex",
+      "matchday": 9,
+      "status": "upcoming"
+    },
+    {
+      "id": 2,
+      "home": "LAUTECH",
+      "away": "UNILAG",
+      "date": "2025-02-15",
+      "time": "16:00",
+      "venue": "LAUTECH Ground",
+      "matchday": 9,
+      "status": "upcoming"
+    },
+    {
+      "id": 3,
+      "home": "OOU",
+      "away": "UNIBEN",
+      "date": "2025-02-16",
+      "time": "12:00",
+      "venue": "OOU Mini Stadium",
+      "matchday": 9,
+      "status": "upcoming"
+    },
+    {
+      "id": 4,
+      "home": "FUNAAB",
+      "away": "EKSU",
+      "date": "2025-02-16",
+      "time": "14:00",
+      "venue": "FUNAAB Sports Field",
+      "matchday": 9,
+      "status": "upcoming"
+    }
+  ],
+  "results": [
+    {
+      "id": 1,
+      "home": "University of Ibadan",
+      "away": "FUNAAB",
+      "homeScore": 3,
+      "awayScore": 1,
+      "date": "2025-01-25",
+      "matchday": 8,
+      "scorers": "Babatunde 22', 67' • Ojo 78' | Aminu 41'"
+    },
+    {
+      "id": 2,
+      "home": "OAU Ile-Ife",
+      "away": "EKSU",
+      "homeScore": 2,
+      "awayScore": 0,
+      "date": "2025-01-25",
+      "matchday": 8,
+      "scorers": "Adeleke 35' • Okoye 88'"
+    },
+    {
+      "id": 3,
+      "home": "UNILAG",
+      "away": "LAUTECH",
+      "homeScore": 1,
+      "awayScore": 1,
+      "date": "2025-01-26",
+      "matchday": 8,
+      "scorers": "Eze 55' | Salami 70'"
+    }
+  ],
+  "materials": [
+    {
+      "id": 1,
+      "title": "HIM 301 – Health Record Management",
+      "description": "Lecture notes + past questions (2020–2024)",
+      "file": "",
+      "category": "300 Level",
+      "icon": "file-text"
+    },
+    {
+      "id": 2,
+      "title": "HIM 401 – Health Information Systems",
+      "description": "Full course notes and assignments",
+      "file": "",
+      "category": "400 Level",
+      "icon": "database"
+    },
+    {
+      "id": 3,
+      "title": "HIM 201 – Medical Terminology",
+      "description": "Terminologies handbook + quiz sheets",
+      "file": "",
+      "category": "200 Level",
+      "icon": "book-open"
+    },
+    {
+      "id": 4,
+      "title": "HIM 502 – Health Informatics",
+      "description": "Introduction to EHR and clinical data systems",
+      "file": "",
+      "category": "500 Level",
+      "icon": "monitor"
+    },
+    {
+      "id": 5,
+      "title": "ICD-10 Coding Guide",
+      "description": "Simplified ICD-10 coding reference for students",
+      "file": "",
+      "category": "Reference",
+      "icon": "clipboard"
+    },
+    {
+      "id": 6,
+      "title": "Research Methods in HIM",
+      "description": "Research methodology notes – 300 level",
+      "file": "",
+      "category": "300 Level",
+      "icon": "search"
+    }
+  ],
+  "admin": {
+    "username": "admin",
+    "password": "$2a$10$80181WOk9m1jmob6ugrqku9JYwxsMHr3aIPfj5pHQ.uQgc2T8Fv6.",
+    "name": "NAHIMS SW Admin"
+  },
+  "announcements": [
+    "NAHIMS SW Annual Games 2026 – Registration Open Now!\r",
+    "New study materials uploaded for HIM 301 – Check Academic Page\r",
+    "Annual Due payment deadline: April 31, 2027\r",
+    "NAHIMS SW Convention 2026 – Akure, June 3–7\r",
+    "Chapter reports for Q3 due end of month"
+  ]
+}

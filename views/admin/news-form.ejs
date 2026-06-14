@@ -1,0 +1,61 @@
+<%- include('layout-start', {title: article ? 'Edit Article' : 'Add Article', active: 'news'}) %>
+<div class="admin-topbar">
+  <div>
+    <h1><%= article ? 'Edit Article' : 'Add News Article' %></h1>
+    <a href="/admin/news" style="font-size:13px;color:var(--green);display:flex;align-items:center;gap:5px;margin-top:4px;"><i data-feather="arrow-left" style="width:14px;height:14px;"></i> Back</a>
+  </div>
+</div>
+<div class="admin-card">
+  <form method="POST" action="<%= action %>" enctype="multipart/form-data">
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Title *</label>
+        <input type="text" name="title" class="form-input" value="<%= article ? article.title : '' %>" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category *</label>
+        <select name="category" class="form-select">
+          <% ['Official','Finance','Partnership','Election','Health','Technology','Sports'].forEach(c => { %>
+          <option <%= article && article.category === c ? 'selected' : '' %>><%= c %></option>
+          <% }); %>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Author</label>
+        <input type="text" name="author" class="form-input" value="<%= article ? article.author : 'Admin' %>">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input type="date" name="date" class="form-input" value="<%= article ? article.date : new Date().toISOString().split('T')[0] %>">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Excerpt (shown on listing)</label>
+      <textarea name="excerpt" class="form-textarea" style="min-height:80px;"><%= article ? article.excerpt : '' %></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Full Content *</label>
+      <textarea name="content" class="form-textarea" style="min-height:200px;" required><%= article ? article.content : '' %></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Feature Image</label>
+      <% if (article && article.image) { %>
+        <img id="imgPreview" src="<%= article.image %>" style="width:200px;height:130px;object-fit:cover;border-radius:8px;border:1px solid var(--border);display:block;margin-bottom:10px;">
+      <% } else { %>
+        <img id="imgPreview" style="display:none;width:200px;height:130px;object-fit:cover;border-radius:8px;margin-bottom:10px;">
+      <% } %>
+      <input type="file" name="image" class="form-input" accept="image/*" data-preview="imgPreview" style="padding:8px;">
+    </div>
+    <div class="form-check">
+      <input type="checkbox" name="published" id="published" <%= !article || article.published ? 'checked' : '' %>>
+      <label for="published">Published (visible on site)</label>
+    </div>
+    <div style="margin-top:24px;display:flex;gap:12px;">
+      <button type="submit" class="btn btn-green"><i data-feather="save"></i> Save</button>
+      <a href="/admin/news" class="btn btn-sm" style="background:var(--gray-light);color:var(--dark);">Cancel</a>
+    </div>
+  </form>
+</div>
+<%- include('layout-end') %>

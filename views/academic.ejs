@@ -1,0 +1,108 @@
+<%- include('partials/head', {title: 'Academic'}) %>
+<%- include('partials/navbar') %>
+
+<div class="page-hero ph-blue">
+  <div class="hero-badge" style="background:rgba(239,159,39,0.3);color:var(--gold-mid);border:1px solid rgba(239,159,39,0.4);display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;padding:6px 18px;border-radius:100px;margin-bottom:18px;">
+    <i data-feather="book-open"></i> Academic Hub
+  </div>
+  <h1>Academic Resources</h1>
+  <p>Study materials, video lectures, past questions, and event highlights</p>
+</div>
+
+<div class="section" data-tab-group="academic">
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="tab-materials"><i data-feather="file-text"></i> Study Materials</button>
+    <button class="tab-btn" data-tab="tab-videos"><i data-feather="video"></i> Video Lectures</button>
+    <button class="tab-btn" data-tab="tab-events"><i data-feather="calendar"></i> Past Events</button>
+  </div>
+
+  <!-- MATERIALS -->
+  <div class="tab-pane active" id="tab-materials">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+      <h2 style="font-size:22px;font-weight:800;">Learning Materials</h2>
+      <p style="color:var(--gray);font-size:14px;">Shared by lecturers and senior colleagues</p>
+    </div>
+    <div class="materials-grid">
+      <% db.materials.forEach((m, i) => { %>
+      <div class="material-card animate-on-scroll" style="animation-delay:<%= i*80 %>ms">
+        <div class="material-icon"><i data-feather="<%= m.icon || 'file-text' %>"></i></div>
+        <div class="material-info">
+          <div class="material-cat"><%= m.category %></div>
+          <h4><%= m.title %></h4>
+          <p><%= m.description %></p>
+          <% if (m.file) { %>
+            <a href="<%= m.file %>" class="dl-btn" download>
+              <i data-feather="download"></i> Download
+            </a>
+          <% } else { %>
+            <span class="dl-btn" style="opacity:0.5;cursor:not-allowed;">
+              <i data-feather="clock"></i> Coming soon
+            </span>
+          <% } %>
+        </div>
+      </div>
+      <% }); %>
+    </div>
+  </div>
+
+  <!-- VIDEOS -->
+  <div class="tab-pane" id="tab-videos">
+    <h2 style="font-size:22px;font-weight:800;margin-bottom:24px;">Video Lectures</h2>
+    <div class="video-grid">
+      <% [
+        {title:'Introduction to Electronic Health Records', lecturer:'Dr. Adeyemi Oluwole', duration:'45 mins', icon:'monitor'},
+        {title:'Health Data Quality Management', lecturer:'Prof. Folake Balogun', duration:'52 mins', icon:'bar-chart-2'},
+        {title:'Medical Coding – ICD-10 Basics', lecturer:'Mr. Tunde Akinola', duration:'38 mins', icon:'clipboard'},
+        {title:'Career Pathways in HIM – Panel Discussion', lecturer:'NAHIMS SW Career Day 2024', duration:'1hr 20mins', icon:'users'}
+      ].forEach(v => { %>
+      <div class="video-card animate-on-scroll">
+        <div class="video-thumb">
+          <div class="video-thumb-bg">
+            <i data-feather="<%= v.icon %>" style="width:56px;height:56px;color:rgba(255,255,255,0.15);"></i>
+          </div>
+          <div class="play-circle">
+            <i data-feather="play"></i>
+          </div>
+        </div>
+        <div class="video-info">
+          <h4><%= v.title %></h4>
+          <p><%= v.lecturer %> &middot; <%= v.duration %></p>
+        </div>
+      </div>
+      <% }); %>
+    </div>
+    <p style="color:var(--gray);font-size:13px;margin-top:20px;text-align:center;">
+      <i data-feather="youtube" style="display:inline;width:14px;height:14px;"></i>
+      Videos link to YouTube. Click any card to watch.
+    </p>
+  </div>
+
+  <!-- PAST EVENTS -->
+  <div class="tab-pane" id="tab-events">
+    <h2 style="font-size:22px;font-weight:800;margin-bottom:24px;">Past Academic Events</h2>
+    <div class="cards-grid">
+      <% [
+        {cat:'Summit',icon:'flag',title:'NAHIMS SW Annual Summit 2024',desc:'200+ students gathered at OAU Ile-Ife for the 2024 summit covering HIM trends, career development, and research showcases.',date:'Feb 2024'},
+        {cat:'Career Day',icon:'briefcase',title:'HIM Career Fair & Mentorship Day',desc:'HIM professionals from hospitals and government agencies mentored over 150 students on career opportunities.',date:'Oct 2024'},
+        {cat:'Workshop',icon:'tool',title:'EHR & Digital Health Workshop',desc:'Hands-on workshop on electronic health record systems and hospital information management at LAUTECH.',date:'Aug 2024'}
+      ].forEach((ev, i) => { %>
+      <div class="card animate-on-scroll" style="animation-delay:<%= i*100 %>ms">
+        <div class="card-img-placeholder">
+          <i data-feather="<%= ev.icon %>"></i>
+        </div>
+        <div class="card-body">
+          <span class="card-tag"><i data-feather="<%= ev.icon %>"></i> <%= ev.cat %></span>
+          <h3><%= ev.title %></h3>
+          <p><%= ev.desc %></p>
+        </div>
+        <div class="card-footer">
+          <span style="display:flex;align-items:center;gap:5px;"><i data-feather="calendar"></i> <%= ev.date %></span>
+          <a href="#">View photos <i data-feather="arrow-right"></i></a>
+        </div>
+      </div>
+      <% }); %>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

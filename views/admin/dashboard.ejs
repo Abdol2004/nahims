@@ -1,0 +1,97 @@
+<%- include('layout-start', {title: 'Dashboard', active: 'dashboard'}) %>
+
+<div class="admin-topbar">
+  <div>
+    <h1>Dashboard</h1>
+    <p style="color:var(--gray);font-size:14px;margin-top:4px;">Welcome back, <%= adminName %>!</p>
+  </div>
+  <a href="/" target="_blank" class="btn btn-green btn-sm"><i data-feather="external-link"></i> View Site</a>
+</div>
+
+<div class="admin-stat-cards">
+  <div class="admin-stat">
+    <div class="admin-stat-num"><%= db.chapters.length %></div>
+    <div class="admin-stat-label"><i data-feather="map-pin" style="display:inline;width:13px;height:13px;color:var(--green);"></i> Chapters</div>
+  </div>
+  <div class="admin-stat">
+    <div class="admin-stat-num"><%= db.events.filter(e=>e.published).length %></div>
+    <div class="admin-stat-label"><i data-feather="star" style="display:inline;width:13px;height:13px;color:var(--green);"></i> Published Events</div>
+  </div>
+  <div class="admin-stat">
+    <div class="admin-stat-num"><%= db.news.filter(n=>n.published).length %></div>
+    <div class="admin-stat-label"><i data-feather="rss" style="display:inline;width:13px;height:13px;color:var(--green);"></i> News Articles</div>
+  </div>
+  <div class="admin-stat">
+    <div class="admin-stat-num"><%= db.chapters.filter(c=>c.due==='Paid').length %></div>
+    <div class="admin-stat-label"><i data-feather="check-circle" style="display:inline;width:13px;height:13px;color:var(--green);"></i> Dues Paid</div>
+  </div>
+  <div class="admin-stat">
+    <div class="admin-stat-num" style="color:#dc2626;"><%= db.chapters.filter(c=>c.due==='Unpaid').length %></div>
+    <div class="admin-stat-label"><i data-feather="x-circle" style="display:inline;width:13px;height:13px;color:#dc2626;"></i> Dues Unpaid</div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+  <!-- Recent Events -->
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <h3><i data-feather="star" style="display:inline;width:15px;height:15px;color:var(--green);"></i> Recent Events</h3>
+      <a href="/admin/events/new" class="btn btn-green btn-xs"><i data-feather="plus"></i> Add</a>
+    </div>
+    <% db.events.slice(0,4).forEach(e => { %>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div>
+        <div style="font-size:14px;font-weight:600;"><%= e.title.substring(0,40) %><%= e.title.length > 40 ? '...' : '' %></div>
+        <div style="font-size:12px;color:var(--gray);"><%= e.category %> &middot; <%= e.date %></div>
+      </div>
+      <span class="badge <%= e.published ? 'badge-paid' : 'badge-unpaid' %>"><%= e.published ? 'Live' : 'Draft' %></span>
+    </div>
+    <% }); %>
+    <a href="/admin/events" style="display:block;text-align:center;margin-top:12px;font-size:13px;color:var(--green);font-weight:600;">View all →</a>
+  </div>
+
+  <!-- Recent News -->
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <h3><i data-feather="rss" style="display:inline;width:15px;height:15px;color:var(--green);"></i> Recent News</h3>
+      <a href="/admin/news/new" class="btn btn-green btn-xs"><i data-feather="plus"></i> Add</a>
+    </div>
+    <% db.news.slice(0,4).forEach(n => { %>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div>
+        <div style="font-size:14px;font-weight:600;"><%= n.title.substring(0,40) %><%= n.title.length > 40 ? '...' : '' %></div>
+        <div style="font-size:12px;color:var(--gray);"><%= n.category %> &middot; <%= n.date %></div>
+      </div>
+      <span class="badge <%= n.published ? 'badge-paid' : 'badge-unpaid' %>"><%= n.published ? 'Live' : 'Draft' %></span>
+    </div>
+    <% }); %>
+    <a href="/admin/news" style="display:block;text-align:center;margin-top:12px;font-size:13px;color:var(--green);font-weight:600;">View all →</a>
+  </div>
+</div>
+
+<!-- Chapters Due Summary -->
+<div class="admin-card" style="margin-top:24px;">
+  <div class="admin-card-header">
+    <h3><i data-feather="map-pin" style="display:inline;width:15px;height:15px;color:var(--green);"></i> Chapters Due Status</h3>
+    <a href="/admin/chapters" class="btn btn-green btn-xs"><i data-feather="edit-2"></i> Manage</a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Chapter</th><th>State</th><th>President</th><th>Due Status</th></tr></thead>
+      <tbody>
+        <% db.chapters.forEach(ch => { %>
+        <tr>
+          <td><strong><%= ch.school %></strong></td>
+          <td><%= ch.state %></td>
+          <td><%= ch.president %></td>
+          <td><span class="badge <%= ch.due === 'Paid' ? 'badge-paid' : ch.due === 'Pending' ? 'badge-pending' : 'badge-unpaid' %>">
+            <i data-feather="<%= ch.due === 'Paid' ? 'check-circle' : ch.due === 'Pending' ? 'clock' : 'x-circle' %>"></i> <%= ch.due %>
+          </span></td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('layout-end') %>

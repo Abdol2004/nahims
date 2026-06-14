@@ -1,0 +1,13 @@
+<div class="ticker">
+  <div class="ticker-inner">
+    <div class="ticker-label">
+      <i data-feather="bell" style="width:13px;height:13px;"></i>
+      Updates
+    </div>
+    <div class="ticker-track">
+      <% db.announcements.forEach(a => { %>
+        <span><i data-feather="chevron-right" style="display:inline;width:12px;height:12px;vertical-align:middle;"></i> <%= a %></span>
+      <% }); %>
+    </div>
+  </div>
+</div>
