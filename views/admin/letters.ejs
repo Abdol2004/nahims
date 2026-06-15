@@ -1,0 +1,197 @@
+<%- include('layout-start', {title: 'Letter Generator', active: 'letters'}) %>
+
+<div class="admin-page-header">
+  <div>
+    <h1 class="admin-page-title">Letter Generator</h1>
+    <p class="admin-page-sub">Compose a letter — it will be overlaid on the NAHIMS SW letterhead and downloaded as PDF.</p>
+  </div>
+</div>
+
+<form method="POST" action="/admin/letters/generate" id="letterForm">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+
+    <!-- LEFT COLUMN -->
+    <div>
+      <!-- Date & Ref -->
+      <div class="admin-card" style="margin-bottom:20px;">
+        <div class="admin-card-header"><h3>Letter Details</h3></div>
+        <div class="admin-card-body">
+          <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="form-group">
+              <label class="form-label">Date</label>
+              <input type="text" name="date" class="form-control"
+                value="<%= new Date().toLocaleDateString('en-NG', {day:'numeric',month:'long',year:'numeric'}) %>"
+                placeholder="e.g. 16th June, 2026">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Reference No. <span style="color:var(--gray);font-weight:400;">(optional)</span></label>
+              <input type="text" name="refNo" class="form-control" placeholder="e.g. NAHIMS/SW/2026/001">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Subject</label>
+            <input type="text" name="subject" class="form-control" placeholder="Letter subject / title" required>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recipient -->
+      <div class="admin-card" style="margin-bottom:20px;">
+        <div class="admin-card-header"><h3>Recipient</h3></div>
+        <div class="admin-card-body">
+          <div class="form-group">
+            <label class="form-label">Salutation / Title</label>
+            <input type="text" name="salutation" class="form-control" placeholder="e.g. The Director-General,">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Recipient Name / Organisation</label>
+            <input type="text" name="toName" class="form-control" placeholder="e.g. Federal Ministry of Health">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Address</label>
+            <textarea name="toAddress" class="form-control" rows="3" placeholder="Street, City, State (one line per row)"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div>
+      <!-- Body -->
+      <div class="admin-card" style="margin-bottom:20px;">
+        <div class="admin-card-header"><h3>Letter Body</h3></div>
+        <div class="admin-card-body">
+          <div class="form-group">
+            <label class="form-label">Body Text</label>
+            <textarea name="body" class="form-control" rows="14"
+              placeholder="Type the full letter content here. Press Enter for new paragraphs." required></textarea>
+            <div style="font-size:11px;color:var(--gray);margin-top:6px;">Tip: blank lines between paragraphs will add spacing in the PDF.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIGNATORIES -->
+  <div class="admin-card" style="margin-bottom:24px;">
+    <div class="admin-card-header" style="display:flex;justify-content:space-between;align-items:center;">
+      <h3>Signatories</h3>
+      <button type="button" class="btn btn-outline btn-sm" onclick="addSignatory()">
+        <i data-feather="plus"></i> Add Signatory
+      </button>
+    </div>
+    <div class="admin-card-body">
+      <p style="font-size:12px;color:var(--gray);margin-bottom:16px;">
+        <i data-feather="lock" style="width:12px;height:12px;display:inline;"></i>
+        President and General Secretary are mandatory. Add others as needed.
+      </p>
+      <div id="signatories-list">
+
+        <!-- Mandatory: President -->
+        <div class="signatory-row mandatory" data-index="0">
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;margin-bottom:12px;">
+            <div class="form-group" style="margin:0;">
+              <label class="form-label" style="font-size:11px;">Name <span class="badge-mandatory">Required</span></label>
+              <input type="text" name="signatories[0][name]" class="form-control"
+                value="<%= president ? president.name : '' %>" required placeholder="President's name">
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label class="form-label" style="font-size:11px;">Position</label>
+              <input type="text" name="signatories[0][position]" class="form-control"
+                value="<%= president ? president.position : 'Zonal President' %>" required>
+            </div>
+            <div style="padding-bottom:4px;">
+              <span class="lock-badge"><i data-feather="lock" style="width:12px;height:12px;"></i></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mandatory: General Secretary -->
+        <div class="signatory-row mandatory" data-index="1">
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;margin-bottom:12px;">
+            <div class="form-group" style="margin:0;">
+              <label class="form-label" style="font-size:11px;">Name <span class="badge-mandatory">Required</span></label>
+              <input type="text" name="signatories[1][name]" class="form-control"
+                value="<%= genSec ? genSec.name : '' %>" required placeholder="General Secretary's name">
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label class="form-label" style="font-size:11px;">Position</label>
+              <input type="text" name="signatories[1][position]" class="form-control"
+                value="<%= genSec ? genSec.position : 'Zonal General Secretary' %>" required>
+            </div>
+            <div style="padding-bottom:4px;">
+              <span class="lock-badge"><i data-feather="lock" style="width:12px;height:12px;"></i></span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="optional-sigs"></div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:12px;justify-content:flex-end;margin-bottom:40px;">
+    <a href="/admin" class="btn btn-outline">Cancel</a>
+    <button type="submit" class="btn btn-green" id="generateBtn">
+      <i data-feather="download"></i> Generate & Download PDF
+    </button>
+  </div>
+</form>
+
+<style>
+.signatory-row { border-left: 3px solid var(--green-light); padding-left: 14px; }
+.signatory-row.mandatory { border-color: var(--green); }
+.signatory-row.optional  { border-color: var(--gold-light); }
+.badge-mandatory { background: var(--green); color: #fff; font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 4px; letter-spacing: 0.5px; vertical-align: middle; margin-left: 4px; }
+.lock-badge { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 38px; background: var(--gray-light); border-radius: 8px; color: var(--gray); }
+.btn-sm { padding: 6px 14px; font-size: 12px; }
+</style>
+
+<script>
+let nextIndex = 2;
+
+function addSignatory() {
+  const container = document.getElementById('optional-sigs');
+  const idx = nextIndex++;
+  const div = document.createElement('div');
+  div.className = 'signatory-row optional';
+  div.id = 'sig-' + idx;
+  div.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;margin-bottom:12px;">
+      <div class="form-group" style="margin:0;">
+        <label class="form-label" style="font-size:11px;">Name</label>
+        <input type="text" name="signatories[${idx}][name]" class="form-control" placeholder="e.g. Fatima Ibrahim">
+      </div>
+      <div class="form-group" style="margin:0;">
+        <label class="form-label" style="font-size:11px;">Position</label>
+        <input type="text" name="signatories[${idx}][position]" class="form-control" placeholder="e.g. Public Relations Officer">
+      </div>
+      <div style="padding-bottom:4px;">
+        <button type="button" onclick="removeSig('sig-${idx}')"
+          style="width:34px;height:38px;border:none;background:var(--gray-light);border-radius:8px;cursor:pointer;color:var(--gray);display:flex;align-items:center;justify-content:center;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>`;
+  container.appendChild(div);
+  if (typeof feather !== 'undefined') feather.replace();
+}
+
+function removeSig(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+document.getElementById('letterForm').addEventListener('submit', function() {
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i data-feather="loader"></i> Generating...';
+  if (typeof feather !== 'undefined') feather.replace();
+  // Re-enable after a moment in case of error
+  setTimeout(() => { btn.disabled = false; btn.innerHTML = '<i data-feather="download"></i> Generate & Download PDF'; if(typeof feather!=='undefined')feather.replace(); }, 8000);
+});
+</script>
+
+<%- include('layout-end') %>

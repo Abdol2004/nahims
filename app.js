@@ -8,6 +8,7 @@ const path       = require('path');
 const fs         = require('fs-extra');
 const bcrypt     = require('bcryptjs');
 const connectDB  = require('./config/db');
+const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
 
 const {
   Site, Executive, Event, News, Chapter,
@@ -596,6 +597,128 @@ app.post('/admin/sports/result/add', requireAdmin, async (req, res) => {
 app.post('/admin/sports/result/delete/:subid', requireAdmin, async (req, res) => {
   await Sports.findOneAndUpdate({}, { $pull: { results: { _id: req.params.subid } } });
   res.redirect('/admin/sports?success=Result deleted');
+});
+
+// ── Admin: Letter Generator ───────────────────────────────────
+app.get('/admin/letters', requireAdmin, async (req, res) => {
+  const [president, genSec] = await Promise.all([
+    Executive.findOne({ type: 'main', position: /president/i }).sort({ order: 1 }),
+    Executive.findOne({ type: 'main', position: /general secretary/i })
+  ]);
+  res.render('admin/letters', { active: 'letters', president, genSec, success: req.query.success || null, error: null });
+});
+
+app.post('/admin/letters/generate', requireAdmin, async (req, res) => {
+  try {
+    const { date, refNo, salutation, toName, toAddress, subject, body } = req.body;
+    let sigs = req.body['signatories'] || [];
+    if (!Array.isArray(sigs)) sigs = [sigs];
+
+    const letterheadPath = path.join(__dirname, 'public', 'nahims.pdf');
+    const letterheadBytes = fs.readFileSync(letterheadPath);
+    const pdfDoc = await PDFDocument.load(letterheadBytes);
+    const page = pdfDoc.getPages()[0];
+    const { width, height } = page.getSize();
+
+    const font     = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const black    = rgb(0, 0, 0);
+    const darkGray = rgb(0.25, 0.25, 0.25);
+
+    const marginL = 65;
+    const marginR = 65;
+    const maxW    = width - marginL - marginR;
+    const fSize   = 10.5;
+    const lh      = 16;
+
+    function wrap(text, f, size, mw) {
+      const lines = [];
+      for (const para of text.split('\n')) {
+        if (!para.trim()) { lines.push(''); continue; }
+        const words = para.split(' ');
+        let cur = '';
+        for (const w of words) {
+          const test = cur ? cur + ' ' + w : w;
+          if (f.widthOfTextAtSize(test, size) > mw && cur) { lines.push(cur); cur = w; }
+          else cur = test;
+        }
+        if (cur) lines.push(cur);
+      }
+      return lines;
+    }
+
+    function drawText(text, x, y, f, size, color) {
+      page.drawText(String(text), { x, y, font: f, size, color });
+    }
+
+    let y = height - 190;
+
+    // Date (right-aligned)
+    if (date) {
+      const dw = font.widthOfTextAtSize(date, fSize);
+      drawText(date, width - marginR - dw, y, font, fSize, black);
+      y -= lh * 1.8;
+    }
+
+    // Ref No
+    if (refNo) {
+      drawText('Ref: ' + refNo, marginL, y, boldFont, fSize, black);
+      y -= lh * 1.8;
+    }
+
+    // Recipient
+    if (salutation) { drawText(salutation, marginL, y, font, fSize, black); y -= lh; }
+    if (toName)     { drawText(toName, marginL, y, boldFont, fSize, black); y -= lh; }
+    if (toAddress) {
+      for (const line of toAddress.split('\n')) {
+        drawText(line, marginL, y, font, fSize, black); y -= lh;
+      }
+    }
+    y -= lh * 0.6;
+
+    // Dear line
+    drawText('Dear Sir/Ma,', marginL, y, font, fSize, black);
+    y -= lh * 1.8;
+
+    // Subject
+    if (subject) {
+      drawText('RE: ' + subject.toUpperCase(), marginL, y, boldFont, fSize, black);
+      y -= lh * 1.8;
+    }
+
+    // Body
+    if (body) {
+      const lines = wrap(body, font, fSize, maxW);
+      for (const line of lines) {
+        if (!line) { y -= lh * 0.5; continue; }
+        drawText(line, marginL, y, font, fSize, black);
+        y -= lh;
+      }
+    }
+
+    y -= lh * 2.5;
+
+    // Signatories
+    const colW = maxW / Math.min(sigs.length, 3);
+    sigs.forEach((sig, i) => {
+      const col  = i % 3;
+      const sigX = marginL + col * colW;
+      const sigY = i < 3 ? y : y - lh * 5;
+      const lineEnd = sigX + colW - 30;
+
+      page.drawLine({ start: { x: sigX, y: sigY }, end: { x: lineEnd, y: sigY }, thickness: 0.6, color: black });
+      if (sig.name)     drawText(sig.name,     sigX, sigY - 14, boldFont, 9,   black);
+      if (sig.position) drawText(sig.position, sigX, sigY - 26, font,     8.5, darkGray);
+    });
+
+    const pdfBytes = await pdfDoc.save();
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="NAHIMS-SW-Letter-${Date.now()}.pdf"`);
+    res.end(Buffer.from(pdfBytes));
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('<h1>PDF Error</h1><p>' + err.message + '</p>');
+  }
 });
 
 // ── Error handler ─────────────────────────────────────────────
