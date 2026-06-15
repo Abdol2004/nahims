@@ -1,47 +1,42 @@
-const express = require('express');
-const session = require('express-session');
+if (!globalThis.crypto) globalThis.crypto = require('crypto').webcrypto;
+require('dotenv').config();
+const express    = require('express');
+const session    = require('express-session');
 const bodyParser = require('body-parser');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs-extra');
-const bcrypt = require('bcryptjs');
+const multer     = require('multer');
+const path       = require('path');
+const fs         = require('fs-extra');
+const bcrypt     = require('bcryptjs');
+const connectDB  = require('./config/db');
 
-const app = express();
+const {
+  Site, Executive, Event, News, Chapter,
+  Material, VideoLecture, Sports, Admin
+} = require('./models');
+
+const app  = express();
 const PORT = process.env.PORT || 3000;
 
-// View engine
+// ── View engine ───────────────────────────────────────────────
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Middleware
+// ── Static files ──────────────────────────────────────────────
 app.use(express.static(path.join(__dirname, 'public')));
+
+// ── Body parsers ──────────────────────────────────────────────
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+// ── Session ───────────────────────────────────────────────────
 app.use(session({
-  secret: 'nahims-sw-secret-2025',
+  secret: process.env.SESSION_SECRET || 'nahims-sw-secret-2026',
   resave: false,
   saveUninitialized: false,
   cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-// DB helpers
-const DB_PATH = path.join(__dirname, 'data/db.json');
-function getDB() { return JSON.parse(fs.readFileSync(DB_PATH, 'utf8')); }
-function saveDB(data) { fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2)); }
-
-// Auth middleware
-function requireAdmin(req, res, next) {
-  if (req.session && req.session.admin) return next();
-  res.redirect('/admin/login');
-}
-
-// Make db available to all views
-app.use((req, res, next) => {
-  res.locals.isAdmin = req.session && req.session.admin;
-  next();
-});
-
-// Multer for image uploads
+// ── File upload ───────────────────────────────────────────────
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const dir = path.join(__dirname, 'public/images', req.uploadFolder || 'general');
@@ -49,71 +44,102 @@ const storage = multer.diskStorage({
     cb(null, dir);
   },
   filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, Date.now() + ext);
+    cb(null, Date.now() + path.extname(file.originalname));
   }
 });
 const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
-// ==================== PUBLIC ROUTES ====================
+// ── Auth middleware ───────────────────────────────────────────
+function requireAdmin(req, res, next) {
+  if (req.session && req.session.admin) return next();
+  res.redirect('/admin/login');
+}
+
+// ── Global locals middleware ──────────────────────────────────
+app.use(async (req, res, next) => {
+  try {
+    const site = await Site.findOne().lean();
+    const defaults = { stats: {}, announcements: [], popup: {}, social: {} };
+    res.locals.site = site ? { ...defaults, ...site } : defaults;
+    res.locals.isAdmin = !!(req.session && req.session.admin);
+    next();
+  } catch (err) { next(err); }
+});
+
+// helper: make slug
+function makeSlug(text, suffix) {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + suffix;
+}
+
+// ═══════════════════════ PUBLIC ROUTES ═══════════════════════
 
 // Home
-app.get('/', (req, res) => {
-  const db = getDB();
-  res.render('index', {
-    db,
-    page: 'home',
-    featuredEvents: db.events.filter(e => e.featured && e.published).slice(0, 4),
-    latestNews: db.news.filter(n => n.published).slice(0, 3)
-  });
+app.get('/', async (req, res) => {
+  const [mainExecs, featuredEvents, latestNews] = await Promise.all([
+    Executive.find({ type: 'main' }).sort({ order: 1 }).limit(3),
+    Event.find({ published: true, featured: true }).sort({ date: -1 }).limit(4),
+    News.find({ published: true }).sort({ date: -1 }).limit(3)
+  ]);
+  res.render('index', { site: res.locals.site, page: 'home', executives: mainExecs, featuredEvents, latestNews });
+});
+
+// Executives page
+app.get('/executives', async (req, res) => {
+  const [mainExecs, appointees] = await Promise.all([
+    Executive.find({ type: 'main' }).sort({ order: 1 }),
+    Executive.find({ type: 'appointee' }).sort({ order: 1 })
+  ]);
+  res.render('executives', { site: res.locals.site, page: 'executives', mainExecs, appointees });
 });
 
 // Sports
-app.get('/sports', (req, res) => {
-  const db = getDB();
-  res.render('sports', { db, page: 'sports' });
+app.get('/sports', async (req, res) => {
+  const sports = await Sports.findOne().lean();
+  res.render('sports', { site: res.locals.site, page: 'sports', sports: sports || {} });
 });
 
 // Academic
-app.get('/academic', (req, res) => {
-  const db = getDB();
-  res.render('academic', { db, page: 'academic' });
+app.get('/academic', async (req, res) => {
+  const [materials, videos, academicEvents] = await Promise.all([
+    Material.find().sort({ _id: 1 }),
+    VideoLecture.find().sort({ order: 1 }),
+    Event.find({ eventType: 'academic', published: true }).sort({ date: -1 })
+  ]);
+  res.render('academic', { site: res.locals.site, page: 'academic', materials, videos, academicEvents });
 });
 
-// News
-app.get('/news', (req, res) => {
-  const db = getDB();
-  res.render('news', { db, page: 'news', articles: db.news.filter(n => n.published) });
+// News list
+app.get('/news', async (req, res) => {
+  const articles = await News.find({ published: true }).sort({ date: -1 });
+  res.render('news', { site: res.locals.site, page: 'news', articles });
 });
 
-app.get('/news/:slug', (req, res) => {
-  const db = getDB();
-  const article = db.news.find(n => n.slug === req.params.slug && n.published);
+// News single
+app.get('/news/:slug', async (req, res) => {
+  const article = await News.findOne({ slug: req.params.slug, published: true });
   if (!article) return res.redirect('/news');
-  res.render('news-single', { db, page: 'news', article });
+  res.render('news-single', { site: res.locals.site, page: 'news', article });
 });
 
-// Events
-app.get('/events/:slug', (req, res) => {
-  const db = getDB();
-  const event = db.events.find(e => e.slug === req.params.slug && e.published);
+// Event single
+app.get('/events/:slug', async (req, res) => {
+  const event = await Event.findOne({ slug: req.params.slug, published: true });
   if (!event) return res.redirect('/');
-  res.render('event-single', { db, page: 'events', event });
+  res.render('event-single', { site: res.locals.site, page: 'events', event });
 });
 
 // Chapters
-app.get('/chapters', (req, res) => {
-  const db = getDB();
-  res.render('chapters', { db, page: 'chapters' });
+app.get('/chapters', async (req, res) => {
+  const chapters = await Chapter.find().sort({ state: 1 });
+  res.render('chapters', { site: res.locals.site, page: 'chapters', chapters });
 });
 
 // Blog
-app.get('/blog', (req, res) => {
-  const db = getDB();
-  res.render('blog', { db, page: 'blog' });
+app.get('/blog', async (req, res) => {
+  res.render('blog', { site: res.locals.site, page: 'blog' });
 });
 
-// ==================== ADMIN ROUTES ====================
+// ═══════════════════════ ADMIN ROUTES ════════════════════════
 
 app.get('/admin/login', (req, res) => {
   if (req.session.admin) return res.redirect('/admin');
@@ -121,13 +147,13 @@ app.get('/admin/login', (req, res) => {
 });
 
 app.post('/admin/login', async (req, res) => {
-  const db = getDB();
   const { username, password } = req.body;
-  if (username === db.admin.username) {
-    const valid = await bcrypt.compare(password, db.admin.password);
+  const adminDoc = await Admin.findOne({ username });
+  if (adminDoc) {
+    const valid = await bcrypt.compare(password, adminDoc.password);
     if (valid) {
       req.session.admin = true;
-      req.session.adminName = db.admin.name;
+      req.session.adminName = adminDoc.name;
       return res.redirect('/admin');
     }
   }
@@ -139,340 +165,454 @@ app.get('/admin/logout', (req, res) => {
   res.redirect('/admin/login');
 });
 
-app.get('/admin', requireAdmin, (req, res) => {
-  const db = getDB();
+// ── Admin: Dashboard ──────────────────────────────────────────
+app.get('/admin', requireAdmin, async (req, res) => {
+  const [chapters, events, news, videos] = await Promise.all([
+    Chapter.find(),
+    Event.find().sort({ date: -1 }),
+    News.find().sort({ date: -1 }),
+    VideoLecture.find()
+  ]);
+  const db = { chapters, events, news, videos };
   res.render('admin/dashboard', { db, adminName: req.session.adminName });
 });
 
-// Admin: Site Settings
-app.get('/admin/settings', requireAdmin, (req, res) => {
-  const db = getDB();
-  res.render('admin/settings', { db, success: null });
+// ── Admin: Settings ───────────────────────────────────────────
+app.get('/admin/settings', requireAdmin, async (req, res) => {
+  const site = await Site.findOne();
+  res.render('admin/settings', { db: { site }, success: null });
 });
 
-app.post('/admin/settings', requireAdmin, (req, res) => {
-  const db = getDB();
-  db.site.email = req.body.email;
-  db.site.phone = req.body.phone;
-  db.site.twitter = req.body.twitter;
-  db.site.instagram = req.body.instagram;
-  db.site.facebook = req.body.facebook;
-  db.site.stats.chapters = req.body.statChapters;
-  db.site.stats.members = req.body.statMembers;
-  db.site.stats.states = req.body.statStates;
-  db.site.stats.years = req.body.statYears;
-  db.announcements = req.body.announcements.split('\n').filter(a => a.trim());
-  saveDB(db);
-  res.render('admin/settings', { db, success: 'Settings saved successfully!' });
-});
-
-// Admin: Executives
-app.get('/admin/executives', requireAdmin, (req, res) => {
-  const db = getDB();
-  res.render('admin/executives', { db, success: req.query.success });
-});
-
-app.post('/admin/executives/add', requireAdmin, (req, _uploadReq, next) => { req.uploadFolder = 'executives'; next(); }, upload.single('image'), (req, res) => {
-  const db = getDB();
-  const newId = db.executives.length ? Math.max(...db.executives.map(e => e.id)) + 1 : 1;
-  db.executives.push({
-    id: newId,
-    name: req.body.name,
-    position: req.body.position,
-    school: req.body.school,
-    initials: req.body.name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase(),
-    color: '#0B6E4F',
-    image: req.file ? '/images/executives/' + req.file.filename : ''
+app.post('/admin/settings', requireAdmin, async (req, res) => {
+  const site = await Site.findOne();
+  Object.assign(site, {
+    email: req.body.email,
+    phone: req.body.phone,
+    twitter: req.body.twitter,
+    instagram: req.body.instagram,
+    facebook: req.body.facebook,
+    tiktok: req.body.tiktok,
+    whatsapp: req.body.whatsapp,
+    youtubeTV: req.body.youtubeTV,
+    'stats.chapters': req.body.statChapters,
+    'stats.members':  req.body.statMembers,
+    'stats.states':   req.body.statStates,
+    'stats.years':    req.body.statYears,
+    'popup.enabled':      req.body.popupEnabled === 'on',
+    'popup.whatsappUrl':  req.body.popupWhatsapp || '',
+    'popup.xUrl':         req.body.popupX || '',
+    'popup.facebookUrl':  req.body.popupFacebook || '',
+    'popup.tiktokUrl':    req.body.popupTiktok || '',
+    'popup.youtubeTVUrl': req.body.popupYoutubeTV || '',
+    announcements: (req.body.announcements || '').split('\n').map(a => a.trim()).filter(Boolean)
   });
-  saveDB(db);
-  res.redirect('/admin/executives?success=Executive added');
+  site.stats = {
+    chapters: req.body.statChapters,
+    members:  req.body.statMembers,
+    states:   req.body.statStates,
+    years:    req.body.statYears
+  };
+  site.popup = {
+    enabled:      req.body.popupEnabled === 'on',
+    whatsappUrl:  req.body.popupWhatsapp  || '',
+    xUrl:         req.body.popupX         || '',
+    facebookUrl:  req.body.popupFacebook  || '',
+    tiktokUrl:    req.body.popupTiktok    || '',
+    youtubeTVUrl: req.body.popupYoutubeTV || ''
+  };
+  await site.save();
+  res.render('admin/settings', { db: { site }, success: 'Settings saved successfully!' });
 });
 
-app.post('/admin/executives/update/:id', requireAdmin, (req, res, next) => { req.uploadFolder = 'executives'; next(); }, upload.single('image'), (req, res) => {
-  const db = getDB();
-  const exec = db.executives.find(e => e.id == req.params.id);
-  if (exec) {
-    exec.name = req.body.name;
-    exec.position = req.body.position;
-    exec.school = req.body.school;
-    exec.initials = req.body.name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
-    if (req.file) exec.image = '/images/executives/' + req.file.filename;
-    saveDB(db);
+app.post('/admin/settings/password', requireAdmin, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const adminDoc = await Admin.findOne();
+  const valid = await bcrypt.compare(currentPassword, adminDoc.password);
+  const site = await Site.findOne();
+  if (!valid) return res.render('admin/settings', { db: { site }, success: null, error: 'Current password incorrect' });
+  adminDoc.password = await bcrypt.hash(newPassword, 10);
+  await adminDoc.save();
+  res.render('admin/settings', { db: { site }, success: 'Password changed successfully!' });
+});
+
+// ── Admin: Executives ─────────────────────────────────────────
+app.get('/admin/executives', requireAdmin, async (req, res) => {
+  const executives = await Executive.find().sort({ type: 1, order: 1 });
+  res.render('admin/executives', { db: { executives }, success: req.query.success || null });
+});
+
+app.post('/admin/executives/add', requireAdmin,
+  (req, res, next) => { req.uploadFolder = 'executives'; next(); },
+  upload.single('image'),
+  async (req, res) => {
+    const count = await Executive.countDocuments({ type: req.body.type || 'main' });
+    await Executive.create({
+      name:     req.body.name,
+      position: req.body.position,
+      school:   req.body.school,
+      initials: req.body.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(),
+      color:    '#0B6E4F',
+      image:    req.file ? '/images/executives/' + req.file.filename : '',
+      type:     req.body.type || 'main',
+      order:    count + 1
+    });
+    res.redirect('/admin/executives?success=Executive added');
   }
-  res.redirect('/admin/executives?success=Executive updated');
-});
+);
 
-app.post('/admin/executives/delete/:id', requireAdmin, (req, res) => {
-  const db = getDB();
-  db.executives = db.executives.filter(e => e.id != req.params.id);
-  saveDB(db);
+app.post('/admin/executives/update/:id', requireAdmin,
+  (req, res, next) => { req.uploadFolder = 'executives'; next(); },
+  upload.single('image'),
+  async (req, res) => {
+    const exec = await Executive.findById(req.params.id);
+    if (exec) {
+      exec.name     = req.body.name;
+      exec.position = req.body.position;
+      exec.school   = req.body.school;
+      exec.type     = req.body.type || exec.type;
+      exec.initials = req.body.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+      if (req.file) exec.image = '/images/executives/' + req.file.filename;
+      await exec.save();
+    }
+    res.redirect('/admin/executives?success=Executive updated');
+  }
+);
+
+app.post('/admin/executives/delete/:id', requireAdmin, async (req, res) => {
+  await Executive.findByIdAndDelete(req.params.id);
   res.redirect('/admin/executives?success=Executive removed');
 });
 
-// Admin: Events
-app.get('/admin/events', requireAdmin, (req, res) => {
-  const db = getDB();
-  res.render('admin/events', { db, success: req.query.success });
+// ── Admin: Events ─────────────────────────────────────────────
+app.get('/admin/events', requireAdmin, async (req, res) => {
+  const events = await Event.find().sort({ date: -1 });
+  res.render('admin/events', { db: { events }, success: req.query.success || null });
 });
 
 app.get('/admin/events/new', requireAdmin, (req, res) => {
-  const db = getDB();
-  res.render('admin/event-form', { db, event: null, action: '/admin/events/add' });
+  res.render('admin/event-form', { db: {}, event: null, action: '/admin/events/add' });
 });
 
-app.get('/admin/events/edit/:id', requireAdmin, (req, res) => {
-  const db = getDB();
-  const event = db.events.find(e => e.id == req.params.id);
+app.get('/admin/events/edit/:id', requireAdmin, async (req, res) => {
+  const event = await Event.findById(req.params.id);
   if (!event) return res.redirect('/admin/events');
-  res.render('admin/event-form', { db, event, action: `/admin/events/update/${event.id}` });
+  res.render('admin/event-form', { db: {}, event, action: `/admin/events/update/${event._id}` });
 });
 
-app.post('/admin/events/add', requireAdmin, (req, res, next) => { req.uploadFolder = 'events'; next(); }, upload.single('image'), (req, res) => {
-  const db = getDB();
-  const newId = db.events.length ? Math.max(...db.events.map(e => e.id)) + 1 : 1;
-  db.events.push({
-    id: newId,
-    title: req.body.title,
-    slug: req.body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + newId,
-    category: req.body.category,
-    organizer: req.body.organizer,
-    organizerRole: req.body.organizerRole,
-    date: req.body.date,
-    location: req.body.location,
-    description: req.body.description,
-    fullContent: req.body.fullContent,
-    image: req.file ? '/images/events/' + req.file.filename : '',
-    featured: req.body.featured === 'on',
-    published: req.body.published === 'on'
-  });
-  saveDB(db);
-  res.redirect('/admin/events?success=Event added');
-});
-
-app.post('/admin/events/update/:id', requireAdmin, (req, res, next) => { req.uploadFolder = 'events'; next(); }, upload.single('image'), (req, res) => {
-  const db = getDB();
-  const event = db.events.find(e => e.id == req.params.id);
-  if (event) {
-    event.title = req.body.title;
-    event.category = req.body.category;
-    event.organizer = req.body.organizer;
-    event.organizerRole = req.body.organizerRole;
-    event.date = req.body.date;
-    event.location = req.body.location;
-    event.description = req.body.description;
-    event.fullContent = req.body.fullContent;
-    event.featured = req.body.featured === 'on';
-    event.published = req.body.published === 'on';
-    if (req.file) event.image = '/images/events/' + req.file.filename;
-    saveDB(db);
+app.post('/admin/events/add', requireAdmin,
+  (req, res, next) => { req.uploadFolder = 'events'; next(); },
+  upload.single('image'),
+  async (req, res) => {
+    const ev = await Event.create({
+      title:         req.body.title,
+      slug:          makeSlug(req.body.title, Date.now()),
+      category:      req.body.category,
+      eventType:     req.body.eventType || 'general',
+      organizer:     req.body.organizer,
+      organizerRole: req.body.organizerRole,
+      date:          req.body.date,
+      location:      req.body.location,
+      description:   req.body.description,
+      fullContent:   req.body.fullContent,
+      image:         req.file ? '/images/events/' + req.file.filename : '',
+      featured:      req.body.featured === 'on',
+      published:     req.body.published === 'on'
+    });
+    res.redirect('/admin/events?success=Event added');
   }
-  res.redirect('/admin/events?success=Event updated');
-});
+);
 
-app.post('/admin/events/delete/:id', requireAdmin, (req, res) => {
-  const db = getDB();
-  db.events = db.events.filter(e => e.id != req.params.id);
-  saveDB(db);
+app.post('/admin/events/update/:id', requireAdmin,
+  (req, res, next) => { req.uploadFolder = 'events'; next(); },
+  upload.single('image'),
+  async (req, res) => {
+    const ev = await Event.findById(req.params.id);
+    if (ev) {
+      ev.title         = req.body.title;
+      ev.category      = req.body.category;
+      ev.eventType     = req.body.eventType || ev.eventType;
+      ev.organizer     = req.body.organizer;
+      ev.organizerRole = req.body.organizerRole;
+      ev.date          = req.body.date;
+      ev.location      = req.body.location;
+      ev.description   = req.body.description;
+      ev.fullContent   = req.body.fullContent;
+      ev.featured      = req.body.featured === 'on';
+      ev.published     = req.body.published === 'on';
+      if (req.file) ev.image = '/images/events/' + req.file.filename;
+      await ev.save();
+    }
+    res.redirect('/admin/events?success=Event updated');
+  }
+);
+
+app.post('/admin/events/delete/:id', requireAdmin, async (req, res) => {
+  await Event.findByIdAndDelete(req.params.id);
   res.redirect('/admin/events?success=Event deleted');
 });
 
-// Admin: News
-app.get('/admin/news', requireAdmin, (req, res) => {
-  const db = getDB();
-  res.render('admin/news', { db, success: req.query.success });
+// ── Admin: News ───────────────────────────────────────────────
+app.get('/admin/news', requireAdmin, async (req, res) => {
+  const news = await News.find().sort({ date: -1 });
+  res.render('admin/news', { db: { news }, success: req.query.success || null });
 });
 
 app.get('/admin/news/new', requireAdmin, (req, res) => {
-  const db = getDB();
-  res.render('admin/news-form', { db, article: null, action: '/admin/news/add' });
+  res.render('admin/news-form', { db: {}, article: null, action: '/admin/news/add' });
 });
 
-app.get('/admin/news/edit/:id', requireAdmin, (req, res) => {
-  const db = getDB();
-  const article = db.news.find(n => n.id == req.params.id);
+app.get('/admin/news/edit/:id', requireAdmin, async (req, res) => {
+  const article = await News.findById(req.params.id);
   if (!article) return res.redirect('/admin/news');
-  res.render('admin/news-form', { db, article, action: `/admin/news/update/${article.id}` });
+  res.render('admin/news-form', { db: {}, article, action: `/admin/news/update/${article._id}` });
 });
 
-app.post('/admin/news/add', requireAdmin, (req, res, next) => { req.uploadFolder = 'news'; next(); }, upload.single('image'), (req, res) => {
-  const db = getDB();
-  const newId = db.news.length ? Math.max(...db.news.map(n => n.id)) + 1 : 1;
-  db.news.push({
-    id: newId,
-    title: req.body.title,
-    slug: req.body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + newId,
-    category: req.body.category,
-    date: req.body.date || new Date().toISOString().split('T')[0],
-    author: req.body.author,
-    excerpt: req.body.excerpt,
-    content: req.body.content,
-    image: req.file ? '/images/news/' + req.file.filename : '',
-    published: req.body.published === 'on'
-  });
-  saveDB(db);
-  res.redirect('/admin/news?success=Article added');
-});
-
-app.post('/admin/news/update/:id', requireAdmin, (req, res, next) => { req.uploadFolder = 'news'; next(); }, upload.single('image'), (req, res) => {
-  const db = getDB();
-  const article = db.news.find(n => n.id == req.params.id);
-  if (article) {
-    article.title = req.body.title;
-    article.category = req.body.category;
-    article.date = req.body.date;
-    article.author = req.body.author;
-    article.excerpt = req.body.excerpt;
-    article.content = req.body.content;
-    article.published = req.body.published === 'on';
-    if (req.file) article.image = '/images/news/' + req.file.filename;
-    saveDB(db);
+app.post('/admin/news/add', requireAdmin,
+  (req, res, next) => { req.uploadFolder = 'news'; next(); },
+  upload.single('image'),
+  async (req, res) => {
+    await News.create({
+      title:     req.body.title,
+      slug:      makeSlug(req.body.title, Date.now()),
+      category:  req.body.category,
+      date:      req.body.date || new Date().toISOString().split('T')[0],
+      author:    req.body.author,
+      excerpt:   req.body.excerpt,
+      content:   req.body.content,
+      image:     req.file ? '/images/news/' + req.file.filename : '',
+      published: req.body.published === 'on'
+    });
+    res.redirect('/admin/news?success=Article added');
   }
-  res.redirect('/admin/news?success=Article updated');
-});
+);
 
-app.post('/admin/news/delete/:id', requireAdmin, (req, res) => {
-  const db = getDB();
-  db.news = db.news.filter(n => n.id != req.params.id);
-  saveDB(db);
+app.post('/admin/news/update/:id', requireAdmin,
+  (req, res, next) => { req.uploadFolder = 'news'; next(); },
+  upload.single('image'),
+  async (req, res) => {
+    const article = await News.findById(req.params.id);
+    if (article) {
+      article.title     = req.body.title;
+      article.category  = req.body.category;
+      article.date      = req.body.date;
+      article.author    = req.body.author;
+      article.excerpt   = req.body.excerpt;
+      article.content   = req.body.content;
+      article.published = req.body.published === 'on';
+      if (req.file) article.image = '/images/news/' + req.file.filename;
+      await article.save();
+    }
+    res.redirect('/admin/news?success=Article updated');
+  }
+);
+
+app.post('/admin/news/delete/:id', requireAdmin, async (req, res) => {
+  await News.findByIdAndDelete(req.params.id);
   res.redirect('/admin/news?success=Article deleted');
 });
 
-// Admin: Chapters
-app.get('/admin/chapters', requireAdmin, (req, res) => {
-  const db = getDB();
-  res.render('admin/chapters', { db, success: req.query.success });
+// ── Admin: Chapters ───────────────────────────────────────────
+app.get('/admin/chapters', requireAdmin, async (req, res) => {
+  const chapters = await Chapter.find().sort({ state: 1 });
+  res.render('admin/chapters', { db: { chapters }, success: req.query.success || null });
 });
 
-app.post('/admin/chapters/update/:id', requireAdmin, (req, res) => {
-  const db = getDB();
-  const chapter = db.chapters.find(c => c.id == req.params.id);
-  if (chapter) {
-    chapter.school = req.body.school;
-    chapter.state = req.body.state;
-    chapter.president = req.body.president;
-    chapter.phone = req.body.phone;
-    chapter.email = req.body.email;
-    chapter.due = req.body.due;
-    saveDB(db);
-  }
-  res.redirect('/admin/chapters?success=Chapter updated');
-});
-
-app.post('/admin/chapters/add', requireAdmin, (req, res) => {
-  const db = getDB();
-  const newId = db.chapters.length ? Math.max(...db.chapters.map(c => c.id)) + 1 : 1;
-  db.chapters.push({
-    id: newId,
-    school: req.body.school,
-    state: req.body.state,
+app.post('/admin/chapters/add', requireAdmin, async (req, res) => {
+  await Chapter.create({
+    school:    req.body.school,
+    state:     req.body.state,
     president: req.body.president,
-    phone: req.body.phone,
-    email: req.body.email,
-    due: req.body.due,
-    founded: req.body.founded || new Date().getFullYear().toString()
+    phone:     req.body.phone,
+    due:       req.body.due
   });
-  saveDB(db);
   res.redirect('/admin/chapters?success=Chapter added');
 });
 
-app.post('/admin/chapters/delete/:id', requireAdmin, (req, res) => {
-  const db = getDB();
-  db.chapters = db.chapters.filter(c => c.id != req.params.id);
-  saveDB(db);
+app.post('/admin/chapters/update/:id', requireAdmin, async (req, res) => {
+  await Chapter.findByIdAndUpdate(req.params.id, {
+    school:    req.body.school,
+    state:     req.body.state,
+    president: req.body.president,
+    phone:     req.body.phone,
+    due:       req.body.due
+  });
+  res.redirect('/admin/chapters?success=Chapter updated');
+});
+
+app.post('/admin/chapters/delete/:id', requireAdmin, async (req, res) => {
+  await Chapter.findByIdAndDelete(req.params.id);
   res.redirect('/admin/chapters?success=Chapter removed');
 });
 
-// Admin: Sports
-app.get('/admin/sports', requireAdmin, (req, res) => {
-  const db = getDB();
-  res.render('admin/sports', { db, success: req.query.success });
+// ── Admin: Materials ──────────────────────────────────────────
+app.get('/admin/materials', requireAdmin, async (req, res) => {
+  const materials = await Material.find();
+  res.render('admin/materials', { db: { materials }, success: req.query.success || null });
 });
 
-app.post('/admin/sports/league/update', requireAdmin, (req, res) => {
-  const db = getDB();
-  const teams = req.body.team;
-  if (Array.isArray(teams)) {
-    db.sportLeague = teams.map((team, i) => ({
-      pos: i + 1,
-      team,
-      p: parseInt(req.body.p[i]) || 0,
-      w: parseInt(req.body.w[i]) || 0,
-      d: parseInt(req.body.d[i]) || 0,
-      l: parseInt(req.body.l[i]) || 0,
-      gf: parseInt(req.body.gf[i]) || 0,
-      ga: parseInt(req.body.ga[i]) || 0,
-      pts: (parseInt(req.body.w[i]) || 0) * 3 + (parseInt(req.body.d[i]) || 0),
-      form: (req.body.form[i] || '').split(',').map(f => f.trim()).filter(Boolean)
-    }));
-    saveDB(db);
+app.post('/admin/materials/add', requireAdmin,
+  (req, res, next) => { req.uploadFolder = 'materials'; next(); },
+  upload.single('file'),
+  async (req, res) => {
+    await Material.create({
+      title:       req.body.title,
+      description: req.body.description,
+      category:    req.body.category,
+      icon:        req.body.icon || 'file-text',
+      file:        req.file ? '/images/materials/' + req.file.filename : ''
+    });
+    res.redirect('/admin/materials?success=Material added');
   }
-  res.redirect('/admin/sports?success=League table updated');
-});
+);
 
-app.post('/admin/sports/fixture/add', requireAdmin, (req, res) => {
-  const db = getDB();
-  const newId = db.fixtures.length ? Math.max(...db.fixtures.map(f => f.id)) + 1 : 1;
-  db.fixtures.push({ id: newId, ...req.body, matchday: parseInt(req.body.matchday), status: 'upcoming' });
-  saveDB(db);
-  res.redirect('/admin/sports?success=Fixture added');
-});
-
-app.post('/admin/sports/fixture/delete/:id', requireAdmin, (req, res) => {
-  const db = getDB();
-  db.fixtures = db.fixtures.filter(f => f.id != req.params.id);
-  saveDB(db);
-  res.redirect('/admin/sports?success=Fixture deleted');
-});
-
-app.post('/admin/sports/result/add', requireAdmin, (req, res) => {
-  const db = getDB();
-  const newId = db.results.length ? Math.max(...db.results.map(r => r.id)) + 1 : 1;
-  db.results.push({ id: newId, ...req.body, homeScore: parseInt(req.body.homeScore), awayScore: parseInt(req.body.awayScore), matchday: parseInt(req.body.matchday) });
-  saveDB(db);
-  res.redirect('/admin/sports?success=Result added');
-});
-
-// Admin: Materials
-app.get('/admin/materials', requireAdmin, (req, res) => {
-  const db = getDB();
-  res.render('admin/materials', { db, success: req.query.success });
-});
-
-app.post('/admin/materials/add', requireAdmin, (req, res, next) => { req.uploadFolder = 'materials'; next(); }, upload.single('file'), (req, res) => {
-  const db = getDB();
-  const newId = db.materials.length ? Math.max(...db.materials.map(m => m.id)) + 1 : 1;
-  db.materials.push({
-    id: newId,
-    title: req.body.title,
-    description: req.body.description,
-    category: req.body.category,
-    icon: req.body.icon || 'file-text',
-    file: req.file ? '/images/materials/' + req.file.filename : ''
-  });
-  saveDB(db);
-  res.redirect('/admin/materials?success=Material added');
-});
-
-app.post('/admin/materials/delete/:id', requireAdmin, (req, res) => {
-  const db = getDB();
-  db.materials = db.materials.filter(m => m.id != req.params.id);
-  saveDB(db);
+app.post('/admin/materials/delete/:id', requireAdmin, async (req, res) => {
+  await Material.findByIdAndDelete(req.params.id);
   res.redirect('/admin/materials?success=Material deleted');
 });
 
-// Admin: Change Password
-app.post('/admin/settings/password', requireAdmin, async (req, res) => {
-  const db = getDB();
-  const { currentPassword, newPassword } = req.body;
-  const valid = await bcrypt.compare(currentPassword, db.admin.password);
-  if (!valid) return res.render('admin/settings', { db, success: null, error: 'Current password is incorrect' });
-  db.admin.password = await bcrypt.hash(newPassword, 10);
-  saveDB(db);
-  res.render('admin/settings', { db, success: 'Password changed successfully!' });
+// ── Admin: Video Lectures ─────────────────────────────────────
+app.get('/admin/videos', requireAdmin, async (req, res) => {
+  const videos = await VideoLecture.find().sort({ order: 1 });
+  res.render('admin/videos', { db: { videos }, success: req.query.success || null });
 });
 
-app.listen(PORT, () => {
-  console.log(`\n✅ NAHIMS SW running at http://localhost:${PORT}`);
-  console.log(`🔐 Admin panel: http://localhost:${PORT}/admin`);
-  console.log(`   Username: admin | Password: admin123\n`);
+app.post('/admin/videos/add', requireAdmin, async (req, res) => {
+  const count = await VideoLecture.countDocuments();
+  await VideoLecture.create({
+    title:      req.body.title,
+    lecturer:   req.body.lecturer,
+    duration:   req.body.duration,
+    youtubeUrl: req.body.youtubeUrl || '',
+    icon:       req.body.icon || 'play-circle',
+    order:      count + 1
+  });
+  res.redirect('/admin/videos?success=Video lecture added');
+});
+
+app.post('/admin/videos/update/:id', requireAdmin, async (req, res) => {
+  await VideoLecture.findByIdAndUpdate(req.params.id, {
+    title:      req.body.title,
+    lecturer:   req.body.lecturer,
+    duration:   req.body.duration,
+    youtubeUrl: req.body.youtubeUrl || '',
+    icon:       req.body.icon || 'play-circle'
+  });
+  res.redirect('/admin/videos?success=Video updated');
+});
+
+app.post('/admin/videos/delete/:id', requireAdmin, async (req, res) => {
+  await VideoLecture.findByIdAndDelete(req.params.id);
+  res.redirect('/admin/videos?success=Video deleted');
+});
+
+// ── Admin: Sports ─────────────────────────────────────────────
+app.get('/admin/sports', requireAdmin, async (req, res) => {
+  const sports = await Sports.findOne();
+  res.render('admin/sports', { db: { sports: sports || {} }, success: req.query.success || null });
+});
+
+// Add school
+app.post('/admin/sports/school/add', requireAdmin, async (req, res) => {
+  await Sports.findOneAndUpdate({}, { $addToSet: { schools: req.body.school } }, { upsert: true });
+  res.redirect('/admin/sports?success=School added');
+});
+
+app.post('/admin/sports/school/delete', requireAdmin, async (req, res) => {
+  await Sports.findOneAndUpdate({}, { $pull: { schools: req.body.school } });
+  res.redirect('/admin/sports?success=School removed');
+});
+
+// Live match
+app.post('/admin/sports/live/update', requireAdmin, async (req, res) => {
+  await Sports.findOneAndUpdate({}, {
+    liveMatch: {
+      enabled:   req.body.liveEnabled === 'on',
+      home:      req.body.liveHome,
+      away:      req.body.liveAway,
+      homeScore: parseInt(req.body.liveHomeScore) || 0,
+      awayScore: parseInt(req.body.liveAwayScore) || 0,
+      minute:    parseInt(req.body.liveMinute) || 0,
+      status:    req.body.liveStatus || ''
+    }
+  }, { upsert: true });
+  res.redirect('/admin/sports?success=Live score updated');
+});
+
+// League table
+app.post('/admin/sports/league/update', requireAdmin, async (req, res) => {
+  const teams = Array.isArray(req.body.team) ? req.body.team : [req.body.team];
+  const sportLeague = teams.map((team, i) => ({
+    pos: i + 1, team,
+    p:   parseInt(req.body.p[i])    || 0,
+    w:   parseInt(req.body.w[i])    || 0,
+    d:   parseInt(req.body.d[i])    || 0,
+    l:   parseInt(req.body.l[i])    || 0,
+    gf:  parseInt(req.body.gf[i])   || 0,
+    ga:  parseInt(req.body.ga[i])   || 0,
+    pts: (parseInt(req.body.w[i]) || 0) * 3 + (parseInt(req.body.d[i]) || 0),
+    form: (req.body.form[i] || '').split(',').map(f => f.trim()).filter(Boolean)
+  }));
+  await Sports.findOneAndUpdate({}, { sportLeague }, { upsert: true });
+  res.redirect('/admin/sports?success=League table updated');
+});
+
+// Fixtures
+app.post('/admin/sports/fixture/add', requireAdmin, async (req, res) => {
+  await Sports.findOneAndUpdate({}, {
+    $push: {
+      fixtures: {
+        home: req.body.home, away: req.body.away,
+        date: req.body.date, time: req.body.time,
+        venue: req.body.venue, matchday: parseInt(req.body.matchday),
+        status: 'upcoming'
+      }
+    }
+  }, { upsert: true });
+  res.redirect('/admin/sports?success=Fixture added');
+});
+
+app.post('/admin/sports/fixture/delete/:subid', requireAdmin, async (req, res) => {
+  await Sports.findOneAndUpdate({}, { $pull: { fixtures: { _id: req.params.subid } } });
+  res.redirect('/admin/sports?success=Fixture deleted');
+});
+
+// Results
+app.post('/admin/sports/result/add', requireAdmin, async (req, res) => {
+  await Sports.findOneAndUpdate({}, {
+    $push: {
+      results: {
+        home: req.body.home, away: req.body.away,
+        homeScore: parseInt(req.body.homeScore),
+        awayScore: parseInt(req.body.awayScore),
+        date: req.body.date,
+        matchday: parseInt(req.body.matchday),
+        scorers: req.body.scorers || ''
+      }
+    }
+  }, { upsert: true });
+  res.redirect('/admin/sports?success=Result added');
+});
+
+app.post('/admin/sports/result/delete/:subid', requireAdmin, async (req, res) => {
+  await Sports.findOneAndUpdate({}, { $pull: { results: { _id: req.params.subid } } });
+  res.redirect('/admin/sports?success=Result deleted');
+});
+
+// ── Error handler ─────────────────────────────────────────────
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).send('<h1>Server Error</h1><p>' + err.message + '</p>');
+});
+
+// ── Start ─────────────────────────────────────────────────────
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`\n🌿 NAHIMS SW NEW DAWN running at http://localhost:${PORT}`);
+    console.log(`🔐 Admin panel: http://localhost:${PORT}/admin`);
+    console.log(`   Username: admin | Password: admin123\n`);
+  });
+}).catch(err => {
+  console.error('Failed to connect to MongoDB:', err.message);
+  console.error('Please set MONGODB_URI in your .env file');
+  process.exit(1);
 });

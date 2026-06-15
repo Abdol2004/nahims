@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= typeof title !== 'undefined' ? title + ' – ' : '' %>NAHIMS SW Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/main.css">
   <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 </head>
@@ -15,7 +15,7 @@
   <aside class="admin-sidebar">
     <div class="admin-sidebar-header">
       <div class="admin-sidebar-logo">NAHIMS SW</div>
-      <div class="admin-sidebar-sub">Admin Panel</div>
+      <div class="admin-sidebar-sub">NEW DAWN Admin Panel</div>
     </div>
     <nav class="admin-nav">
       <a href="/admin" class="<%= typeof active !== 'undefined' && active === 'dashboard' ? 'active' : '' %>">
@@ -34,13 +34,16 @@
       <a href="/admin/chapters" class="<%= typeof active !== 'undefined' && active === 'chapters' ? 'active' : '' %>">
         <i data-feather="map-pin"></i> Chapters
       </a>
+      <div class="admin-nav-label">Academic</div>
+      <a href="/admin/materials" class="<%= typeof active !== 'undefined' && active === 'materials' ? 'active' : '' %>">
+        <i data-feather="file-text"></i> Materials
+      </a>
+      <a href="/admin/videos" class="<%= typeof active !== 'undefined' && active === 'videos' ? 'active' : '' %>">
+        <i data-feather="video"></i> Video Lectures
+      </a>
       <div class="admin-nav-label">Sports</div>
       <a href="/admin/sports" class="<%= typeof active !== 'undefined' && active === 'sports' ? 'active' : '' %>">
         <i data-feather="award"></i> Sports & League
-      </a>
-      <div class="admin-nav-label">Resources</div>
-      <a href="/admin/materials" class="<%= typeof active !== 'undefined' && active === 'materials' ? 'active' : '' %>">
-        <i data-feather="file-text"></i> Materials
       </a>
       <div class="admin-nav-label">System</div>
       <a href="/admin/settings" class="<%= typeof active !== 'undefined' && active === 'settings' ? 'active' : '' %>">

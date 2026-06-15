@@ -6,7 +6,7 @@
   <div class="admin-card-header"><h3>Add Chapter</h3></div>
   <form method="POST" action="/admin/chapters/add">
     <div class="form-grid">
-      <div class="form-group"><label class="form-label">School Name *</label><input type="text" name="school" class="form-input" required></div>
+      <div class="form-group"><label class="form-label">Chapter Name / School *</label><input type="text" name="school" class="form-input" required placeholder="University of Ibadan"></div>
       <div class="form-group"><label class="form-label">State *</label>
         <select name="state" class="form-select">
           <% ['Oyo','Osun','Ogun','Lagos','Ondo','Ekiti','Edo'].forEach(s => { %><option><%= s %></option><% }); %>
@@ -14,14 +14,11 @@
       </div>
     </div>
     <div class="form-grid">
-      <div class="form-group"><label class="form-label">President Name *</label><input type="text" name="president" class="form-input" required></div>
-      <div class="form-group"><label class="form-label">Phone</label><input type="text" name="phone" class="form-input"></div>
+      <div class="form-group"><label class="form-label">President Name *</label><input type="text" name="president" class="form-input" required placeholder="Comrade Jane Doe"></div>
+      <div class="form-group"><label class="form-label">Phone</label><input type="text" name="phone" class="form-input" placeholder="080XXXXXXXX"></div>
     </div>
-    <div class="form-grid">
-      <div class="form-group"><label class="form-label">Email</label><input type="email" name="email" class="form-input"></div>
-      <div class="form-group"><label class="form-label">Due Status</label>
-        <select name="due" class="form-select"><option>Paid</option><option>Pending</option><option>Unpaid</option></select>
-      </div>
+    <div class="form-group"><label class="form-label">Due Status</label>
+      <select name="due" class="form-select"><option>Paid</option><option>Pending</option><option>Unpaid</option></select>
     </div>
     <button type="submit" class="btn btn-green btn-sm"><i data-feather="plus"></i> Add Chapter</button>
   </form>
@@ -30,7 +27,7 @@
 <div class="admin-card">
   <div class="admin-card-header"><h3>All Chapters (<%= db.chapters.length %>)</h3></div>
   <div class="table-wrap"><table>
-    <thead><tr><th>#</th><th>School</th><th>State</th><th>President</th><th>Phone</th><th>Due</th><th>Actions</th></tr></thead>
+    <thead><tr><th>#</th><th>Chapter / School</th><th>State</th><th>President Name</th><th>Phone</th><th>Due Paid?</th><th>Actions</th></tr></thead>
     <tbody>
       <% db.chapters.forEach((ch, i) => { %>
       <tr>
@@ -39,17 +36,22 @@
         <td><%= ch.state %></td>
         <td><%= ch.president %></td>
         <td style="font-size:13px;"><%= ch.phone %></td>
-        <td><span class="badge <%= ch.due === 'Paid' ? 'badge-paid' : ch.due === 'Pending' ? 'badge-pending' : 'badge-unpaid' %>"><%= ch.due %></span></td>
+        <td>
+          <span class="badge <%= ch.due === 'Paid' ? 'badge-paid' : ch.due === 'Pending' ? 'badge-pending' : 'badge-unpaid' %>">
+            <i data-feather="<%= ch.due === 'Paid' ? 'check-circle' : ch.due === 'Pending' ? 'clock' : 'x-circle' %>"></i>
+            <%= ch.due === 'Paid' ? 'Yes – Paid' : ch.due === 'Pending' ? 'Pending' : 'No – Unpaid' %>
+          </span>
+        </td>
         <td><div class="admin-table-actions">
-          <button onclick="document.getElementById('editCh<%= ch.id %>').style.display='block'" class="btn btn-green btn-xs"><i data-feather="edit-2"></i></button>
-          <form method="POST" action="/admin/chapters/delete/<%= ch.id %>" data-confirm="Delete this chapter?">
+          <button onclick="document.getElementById('editCh<%= ch._id %>').style.display='block'" class="btn btn-green btn-xs"><i data-feather="edit-2"></i></button>
+          <form method="POST" action="/admin/chapters/delete/<%= ch._id %>" data-confirm="Delete this chapter?">
             <button class="btn btn-xs" style="background:#FEF2F2;color:#dc2626;border:1px solid #fecaca;"><i data-feather="trash-2"></i></button>
           </form>
         </div></td>
       </tr>
-      <tr id="editCh<%= ch.id %>" style="display:none;background:var(--green-light);">
+      <tr id="editCh<%= ch._id %>" style="display:none;background:var(--green-light);">
         <td colspan="7" style="padding:16px;">
-          <form method="POST" action="/admin/chapters/update/<%= ch.id %>">
+          <form method="POST" action="/admin/chapters/update/<%= ch._id %>">
             <div class="form-grid-3">
               <input type="text" name="school" class="form-input" value="<%= ch.school %>" placeholder="School" required>
               <select name="state" class="form-select">
@@ -57,11 +59,10 @@
                   <option <%= ch.state === s ? 'selected' : '' %>><%= s %></option>
                 <% }); %>
               </select>
-              <input type="text" name="president" class="form-input" value="<%= ch.president %>" placeholder="President" required>
+              <input type="text" name="president" class="form-input" value="<%= ch.president %>" placeholder="President Name" required>
             </div>
-            <div class="form-grid-3" style="margin-top:10px;">
+            <div class="form-grid" style="margin-top:10px;">
               <input type="text" name="phone" class="form-input" value="<%= ch.phone %>" placeholder="Phone">
-              <input type="email" name="email" class="form-input" value="<%= ch.email %>" placeholder="Email">
               <select name="due" class="form-select">
                 <% ['Paid','Pending','Unpaid'].forEach(d => { %>
                   <option <%= ch.due === d ? 'selected' : '' %>><%= d %></option>
@@ -70,7 +71,7 @@
             </div>
             <div style="display:flex;gap:10px;margin-top:10px;">
               <button type="submit" class="btn btn-green btn-sm"><i data-feather="save"></i> Save</button>
-              <button type="button" onclick="document.getElementById('editCh<%= ch.id %>').style.display='none'" class="btn btn-sm" style="background:var(--gray-mid);">Cancel</button>
+              <button type="button" onclick="document.getElementById('editCh<%= ch._id %>').style.display='none'" class="btn btn-sm" style="background:var(--gray-mid);">Cancel</button>
             </div>
           </form>
         </td>

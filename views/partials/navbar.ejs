@@ -4,12 +4,15 @@
       <div class="nav-logo-icon"><img src="./logo.png" width="100%" alt="NAHIMS SW Logo"></div>
       <div>
         <div class="nav-logo-text">NAHIMS SW</div>
-        <div class="nav-logo-sub">Southwest Zone (Zone D)</div>
+        <div class="nav-logo-sub">2026/2027 NEW DAWN Administration</div>
       </div>
     </a>
     <ul class="nav-links">
       <li><a href="/" class="<%= page === 'home' ? 'active' : '' %>">
         <i data-feather="home"></i> Home
+      </a></li>
+      <li><a href="/executives" class="<%= page === 'executives' ? 'active' : '' %>">
+        <i data-feather="users"></i> Executives
       </a></li>
       <li><a href="/sports" class="<%= page === 'sports' ? 'active' : '' %>">
         <i data-feather="award"></i> Sports
@@ -23,9 +26,6 @@
       <li><a href="/chapters" class="<%= page === 'chapters' ? 'active' : '' %>">
         <i data-feather="map-pin"></i> Chapters
       </a></li>
-      <li><a href="/blog" class="<%= page === 'blog' ? 'active' : '' %>">
-        <i data-feather="edit-3"></i> Blog
-      </a></li>
     </ul>
     <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
       <i data-feather="menu"></i>
@@ -33,6 +33,7 @@
   </div>
   <div class="mobile-nav" id="mobileNav" style="display:none;">
     <a href="/" class="<%= page === 'home' ? 'active' : '' %>"><i data-feather="home"></i> Home</a>
+    <a href="/executives" class="<%= page === 'executives' ? 'active' : '' %>"><i data-feather="users"></i> Executives</a>
     <a href="/sports" class="<%= page === 'sports' ? 'active' : '' %>"><i data-feather="award"></i> Sports</a>
     <a href="/academic" class="<%= page === 'academic' ? 'active' : '' %>"><i data-feather="book-open"></i> Academic</a>
     <a href="/news" class="<%= page === 'news' ? 'active' : '' %>"><i data-feather="rss"></i> News & Awareness</a>

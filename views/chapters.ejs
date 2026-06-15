@@ -1,62 +1,79 @@
 <%- include('partials/head', {title: 'Chapters'}) %>
 <%- include('partials/navbar') %>
+<%- include('partials/ticker') %>
 
 <div class="page-hero ph-purple">
   <div class="hero-badge" style="background:rgba(239,159,39,0.3);color:var(--gold-mid);border:1px solid rgba(239,159,39,0.4);display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;padding:6px 18px;border-radius:100px;margin-bottom:18px;">
     <i data-feather="map-pin"></i> Zone D
   </div>
   <h1>NAHIMS SW Chapters</h1>
-  <p>All <%= db.chapters.length %> chapters across <%= db.site.stats.states %> Southwest states</p>
+  <p>All <%= chapters.length %> chapters across <%= site.stats.states %> Southwest states</p>
 </div>
 
 <div class="section">
   <div class="section-header animate-on-scroll">
     <div class="section-tag"><i data-feather="list"></i> Chapter Directory</div>
-    <h2>Chapter List &amp; Contacts</h2>
-    <p>President contact details, state, and annual due payment status for each chapter</p>
+    <h2>Chapter List</h2>
+    <p>Chapter name, state, president name, and annual due payment status</p>
   </div>
 
   <div class="chapters-filter">
     <select id="stateFilter" class="filter-select">
       <option value="">All States</option>
-      <% [...new Set(db.chapters.map(c => c.state))].forEach(s => { %>
+      <% [...new Set(chapters.map(c => c.state))].forEach(s => { %>
         <option><%= s %></option>
       <% }); %>
     </select>
     <select id="dueFilter" class="filter-select">
       <option value="">All Due Status</option>
-      <option>Paid</option><option>Unpaid</option><option>Pending</option>
+      <option value="Paid">Paid</option>
+      <option value="Unpaid">Unpaid</option>
+      <option value="Pending">Pending</option>
     </select>
   </div>
 
   <!-- Summary badges -->
   <div style="display:flex;gap:14px;margin-bottom:20px;flex-wrap:wrap;">
-    <span class="badge badge-paid"><i data-feather="check-circle"></i> Paid: <%= db.chapters.filter(c=>c.due==='Paid').length %></span>
-    <span class="badge badge-pending"><i data-feather="clock"></i> Pending: <%= db.chapters.filter(c=>c.due==='Pending').length %></span>
-    <span class="badge badge-unpaid"><i data-feather="x-circle"></i> Unpaid: <%= db.chapters.filter(c=>c.due==='Unpaid').length %></span>
+    <span class="badge badge-paid"><i data-feather="check-circle"></i> Paid: <%= chapters.filter(c=>c.due==='Paid').length %></span>
+    <span class="badge badge-pending"><i data-feather="clock"></i> Pending: <%= chapters.filter(c=>c.due==='Pending').length %></span>
+    <span class="badge badge-unpaid"><i data-feather="x-circle"></i> Unpaid: <%= chapters.filter(c=>c.due==='Unpaid').length %></span>
   </div>
 
   <div class="table-wrap">
     <table>
       <thead>
         <tr>
-          <th>#</th><th>Chapter / School</th><th>State</th><th>President</th>
-          <th>Phone</th><th>Email</th><th>Annual Due 2025</th>
+          <th>#</th>
+          <th>Chapter Name / School</th>
+          <th>State</th>
+          <th>President Name</th>
+          <th>Phone</th>
+          <th>Due Paid?</th>
         </tr>
       </thead>
       <tbody id="chaptersBody">
-        <% db.chapters.forEach((ch, i) => { %>
+        <% chapters.forEach((ch, i) => { %>
         <tr data-state="<%= ch.state %>" data-due="<%= ch.due %>" class="animate-on-scroll">
           <td><%= i + 1 %></td>
           <td><strong><%= ch.school %></strong></td>
-          <td><span style="display:flex;align-items:center;gap:5px;"><i data-feather="map-pin" style="width:12px;height:12px;color:var(--green);"></i><%= ch.state %></span></td>
+          <td>
+            <span style="display:flex;align-items:center;gap:5px;">
+              <i data-feather="map-pin" style="width:12px;height:12px;color:var(--green);"></i>
+              <%= ch.state %>
+            </span>
+          </td>
           <td><%= ch.president %></td>
-          <td><a href="tel:<%= ch.phone %>" style="color:var(--green);display:flex;align-items:center;gap:5px;"><i data-feather="phone" style="width:12px;height:12px;"></i><%= ch.phone %></a></td>
-          <td><a href="mailto:<%= ch.email %>" style="color:var(--green);font-size:12px;"><%= ch.email %></a></td>
+          <td>
+            <% if (ch.phone) { %>
+              <a href="tel:<%= ch.phone %>" style="color:var(--green);display:flex;align-items:center;gap:5px;">
+                <i data-feather="phone" style="width:12px;height:12px;"></i><%= ch.phone %>
+              </a>
+            <% } else { %>—<% } %>
+          </td>
           <td>
             <span class="badge <%= ch.due === 'Paid' ? 'badge-paid' : ch.due === 'Pending' ? 'badge-pending' : 'badge-unpaid' %>">
               <i data-feather="<%= ch.due === 'Paid' ? 'check-circle' : ch.due === 'Pending' ? 'clock' : 'x-circle' %>"></i>
-              <%= ch.due %>
+              <%= ch.due === 'Paid' ? 'Yes – Paid' : ch.due === 'Pending' ? 'Pending' : 'No – Unpaid' %>
             </span>
           </td>
         </tr>
@@ -66,9 +83,9 @@
   </div>
 
   <div style="display:flex;gap:16px;margin-top:18px;flex-wrap:wrap;font-size:13px;color:var(--gray);">
-    <span style="display:flex;align-items:center;gap:6px;"><span class="badge badge-paid"><i data-feather="check-circle"></i> Paid</span> Annual due confirmed</span>
+    <span style="display:flex;align-items:center;gap:6px;"><span class="badge badge-paid"><i data-feather="check-circle"></i> Yes – Paid</span> Annual due confirmed</span>
     <span style="display:flex;align-items:center;gap:6px;"><span class="badge badge-pending"><i data-feather="clock"></i> Pending</span> Payment processing</span>
-    <span style="display:flex;align-items:center;gap:6px;"><span class="badge badge-unpaid"><i data-feather="x-circle"></i> Unpaid</span> Not yet paid</span>
+    <span style="display:flex;align-items:center;gap:6px;"><span class="badge badge-unpaid"><i data-feather="x-circle"></i> No – Unpaid</span> Not yet paid</span>
   </div>
 </div>
 

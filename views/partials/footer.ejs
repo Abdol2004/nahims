@@ -7,13 +7,30 @@
       </div>
       <p class="footer-about">
         National Association of Health Information Management Students, Southwest Zone (Zone D).
-        Advancing academic excellence, professional development, and student unity across six states.
+        Advancing academic excellence, professional development, and student unity across seven states.
       </p>
+      <!-- NEW DAWN Tag -->
+      <div class="footer-administration">
+        <div class="footer-admin-badge">
+          <i data-feather="star" style="width:13px;height:13px;"></i>
+          Office of the 2026/2027 NEW DAWN Administration
+        </div>
+        <div class="footer-admin-name">Comrade Abdulfatah Abdullahi</div>
+        <div class="footer-admin-title">Zonal President – NAHIMS SW</div>
+      </div>
       <div class="footer-socials">
-        <a href="#" class="social-btn" aria-label="Twitter"><i data-feather="twitter"></i></a>
-        <a href="#" class="social-btn" aria-label="Facebook"><i data-feather="facebook"></i></a>
-        <a href="#" class="social-btn" aria-label="Instagram"><i data-feather="instagram"></i></a>
-        <a href="#" class="social-btn" aria-label="Email"><i data-feather="mail"></i></a>
+        <a href="<%= site.twitter && site.twitter.startsWith('http') ? site.twitter : 'https://x.com/' + (site.twitter || '').replace('@','') %>" class="social-btn" aria-label="X / Twitter" target="_blank"><i data-feather="twitter"></i></a>
+        <a href="<%= site.facebook && site.facebook.startsWith('http') ? site.facebook : '#' %>" class="social-btn" aria-label="Facebook" target="_blank"><i data-feather="facebook"></i></a>
+        <a href="<%= site.instagram && site.instagram.startsWith('http') ? site.instagram : 'https://instagram.com/' + (site.instagram || '').replace('@','') %>" class="social-btn" aria-label="Instagram" target="_blank"><i data-feather="instagram"></i></a>
+        <% if (site.tiktok) { %>
+        <a href="<%= site.tiktok.startsWith('http') ? site.tiktok : 'https://tiktok.com/' + site.tiktok %>" class="social-btn" aria-label="TikTok" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.79a8.16 8.16 0 004.77 1.52V6.84a4.85 4.85 0 01-1-.15z"/></svg>
+        </a>
+        <% } %>
+        <% if (site.youtubeTV) { %>
+        <a href="<%= site.youtubeTV %>" class="social-btn" aria-label="NAHIMS SW TV" target="_blank"><i data-feather="youtube"></i></a>
+        <% } %>
+        <a href="mailto:<%= site.email %>" class="social-btn" aria-label="Email"><i data-feather="mail"></i></a>
       </div>
     </div>
 
@@ -21,6 +38,7 @@
       <h4>Quick Links</h4>
       <ul>
         <li><a href="/"><i data-feather="home"></i> Home</a></li>
+        <li><a href="/executives"><i data-feather="users"></i> Executives</a></li>
         <li><a href="/sports"><i data-feather="award"></i> Sports</a></li>
         <li><a href="/academic"><i data-feather="book-open"></i> Academic</a></li>
         <li><a href="/news"><i data-feather="rss"></i> News</a></li>
@@ -32,27 +50,77 @@
     <div class="footer-col">
       <h4>Contact</h4>
       <ul>
-        <li><a href="mailto:<%= db.site.email %>"><i data-feather="mail"></i> <%= db.site.email %></a></li>
-        <li><a href="tel:<%= db.site.phone %>"><i data-feather="phone"></i> <%= db.site.phone %></a></li>
-        <li><a href="#"><i data-feather="twitter"></i> <%= db.site.twitter %></a></li>
-        <li><a href="#"><i data-feather="instagram"></i> <%= db.site.instagram %></a></li>
-        <li><a href="#"><i data-feather="facebook"></i> <%= db.site.facebook %></a></li>
+        <li><a href="mailto:<%= site.email %>"><i data-feather="mail"></i> <%= site.email %></a></li>
+        <li><a href="tel:<%= site.phone %>"><i data-feather="phone"></i> <%= site.phone %></a></li>
+        <li><a href="#"><i data-feather="twitter"></i> <%= site.twitter %></a></li>
+        <% if (site.tiktok) { %><li><a href="#"><i data-feather="video"></i> TikTok: <%= site.tiktok %></a></li><% } %>
+        <% if (site.youtubeTV) { %><li><a href="<%= site.youtubeTV %>"><i data-feather="youtube"></i> NAHIMS SW TV</a></li><% } %>
       </ul>
     </div>
 
     <div class="footer-col footer-newsletter">
       <h4>Stay Updated</h4>
       <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:14px;">Get the latest NAHIMS SW news and announcements.</p>
+      <% if (site.whatsapp) { %>
+        <a href="<%= site.whatsapp %>" target="_blank" class="btn btn-green" style="width:100%;justify-content:center;margin-bottom:10px;">
+          <i data-feather="message-circle"></i> Join WhatsApp Group
+        </a>
+      <% } %>
       <input type="email" placeholder="Enter your email">
       <button type="button">Subscribe <i data-feather="send" style="display:inline;width:13px;height:13px;"></i></button>
     </div>
   </div>
 
   <div class="footer-bottom">
-    <span>&copy; <%= new Date().getFullYear() %> NAHIMS SW – Zone D. All rights reserved.</span>
-    <span>Built for Nigerian HIM Students 🇳🇬 | <a href="/admin" style="color:rgba(255,255,255,0.4);">Admin</a></span>
+    <span>&copy; <%= new Date().getFullYear() %> NAHIMS SW – Zone D &middot; 2026/2027 NEW DAWN Administration. All rights reserved.</span>
+    <span>Comrade Abdulfatah Abdullahi | <a href="/admin" style="color:rgba(255,255,255,0.4);">Admin</a></span>
   </div>
 </footer>
+
+<!-- Social Popup -->
+<% if (site.popup && site.popup.enabled && (site.popup.whatsappUrl || site.popup.xUrl || site.popup.facebookUrl || site.popup.tiktokUrl || site.popup.youtubeTVUrl)) { %>
+<div id="socialPopup" class="social-popup-overlay" style="display:none;">
+  <div class="social-popup">
+    <button class="social-popup-close" id="closePopup" aria-label="Close"><i data-feather="x"></i></button>
+    <div class="social-popup-logo">
+      <img src="/logo.png" alt="NAHIMS SW" width="56">
+    </div>
+    <h3 class="social-popup-title">Join the NAHIMS SW Community!</h3>
+    <p class="social-popup-sub">From the Office of <strong>Zonal President Abdulfatah Abdullahi</strong> – Stay connected with us</p>
+    <div class="social-popup-btns">
+      <% if (site.popup.whatsappUrl) { %>
+      <a href="<%= site.popup.whatsappUrl %>" target="_blank" class="popup-social-btn popup-whatsapp">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+        Join WhatsApp Group
+      </a>
+      <% } %>
+      <% if (site.popup.xUrl) { %>
+      <a href="<%= site.popup.xUrl %>" target="_blank" class="popup-social-btn popup-x">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.258 5.639 5.906-5.639Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Follow on X
+      </a>
+      <% } %>
+      <% if (site.popup.facebookUrl) { %>
+      <a href="<%= site.popup.facebookUrl %>" target="_blank" class="popup-social-btn popup-facebook">
+        <i data-feather="facebook"></i> Like on Facebook
+      </a>
+      <% } %>
+      <% if (site.popup.tiktokUrl) { %>
+      <a href="<%= site.popup.tiktokUrl %>" target="_blank" class="popup-social-btn popup-tiktok">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.79a8.16 8.16 0 004.77 1.52V6.84a4.85 4.85 0 01-1-.15z"/></svg>
+        Follow on TikTok
+      </a>
+      <% } %>
+      <% if (site.popup.youtubeTVUrl) { %>
+      <a href="<%= site.popup.youtubeTVUrl %>" target="_blank" class="popup-social-btn popup-youtube">
+        <i data-feather="youtube"></i> Watch NAHIMS SW TV
+      </a>
+      <% } %>
+    </div>
+    <button class="popup-dismiss" id="dismissPopup">Maybe later</button>
+  </div>
+</div>
+<% } %>
 
 <script src="/js/main.js"></script>
 <script>if (typeof feather !== 'undefined') feather.replace();</script>

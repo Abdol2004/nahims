@@ -66,6 +66,13 @@
       <input type="file" name="image" class="form-input" accept="image/*" data-preview="imgPreview" style="padding:8px;">
       <p style="font-size:12px;color:var(--gray);margin-top:6px;"><i data-feather="info" style="display:inline;width:12px;height:12px;"></i> Leave empty to keep existing image. Max 5MB. JPG/PNG recommended.</p>
     </div>
+    <div class="form-group">
+      <label class="form-label">Event Type</label>
+      <select name="eventType" class="form-select">
+        <option value="general" <%= !event || event.eventType === 'general' ? 'selected' : '' %>>General Event (shows on Events page)</option>
+        <option value="academic" <%= event && event.eventType === 'academic' ? 'selected' : '' %>>Academic Event (shows on Academic page)</option>
+      </select>
+    </div>
     <div style="display:flex;gap:20px;flex-wrap:wrap;">
       <div class="form-check">
         <input type="checkbox" name="featured" id="featured" <%= event && event.featured ? 'checked' : '' %>>

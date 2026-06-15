@@ -141,4 +141,58 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (currentPath.startsWith(a.getAttribute('href')) && a.getAttribute('href') !== '/') a.classList.add('active');
   });
 
+  // ── Social popup ──────────────────────────────────────────────
+  const popup = document.getElementById('socialPopup');
+  const closePopupBtn = document.getElementById('closePopup');
+  const dismissPopupBtn = document.getElementById('dismissPopup');
+
+  if (popup) {
+    const popupKey = 'nahims_popup_v2';
+    const lastSeen = localStorage.getItem(popupKey);
+    const now = Date.now();
+    const oneDay = 24 * 60 * 60 * 1000;
+
+    if (!lastSeen || (now - parseInt(lastSeen)) > oneDay) {
+      setTimeout(() => {
+        popup.style.display = 'flex';
+      }, 2500);
+    }
+
+    function closePopup() {
+      popup.style.display = 'none';
+      localStorage.setItem(popupKey, String(Date.now()));
+    }
+    if (closePopupBtn)  closePopupBtn.addEventListener('click',  closePopup);
+    if (dismissPopupBtn) dismissPopupBtn.addEventListener('click', closePopup);
+    popup.addEventListener('click', (e) => { if (e.target === popup) closePopup(); });
+  }
+
 });
+
+// ── Anthem player ─────────────────────────────────────────────
+function toggleAnthem() {
+  const audio   = document.getElementById('anthemAudio');
+  const icon    = document.getElementById('anthemPlayIcon');
+  const bar     = document.getElementById('anthemBar');
+  if (!audio) return;
+
+  if (audio.paused) {
+    audio.play().catch(() => {});
+    icon.setAttribute('data-feather', 'pause');
+  } else {
+    audio.pause();
+    icon.setAttribute('data-feather', 'play');
+  }
+  if (typeof feather !== 'undefined') feather.replace();
+
+  audio.addEventListener('timeupdate', () => {
+    if (audio.duration) {
+      bar.style.width = (audio.currentTime / audio.duration * 100) + '%';
+    }
+  });
+  audio.addEventListener('ended', () => {
+    icon.setAttribute('data-feather', 'play');
+    if (typeof feather !== 'undefined') feather.replace();
+    bar.style.width = '0%';
+  });
+}

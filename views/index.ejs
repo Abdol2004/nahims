@@ -2,6 +2,15 @@
 <%- include('partials/navbar') %>
 <%- include('partials/ticker') %>
 
+<!-- ═══════════ ADMINISTRATION BANNER ═══════════ -->
+<div class="admin-banner">
+  <div class="admin-banner-inner">
+    <div class="admin-banner-dot"></div>
+    <span>From the Office of the <strong>2026/2027 NEW DAWN Administration</strong> of NAHIMS SW &mdash; Comrade Abdulfatah Abdullahi</span>
+    <div class="admin-banner-dot"></div>
+  </div>
+</div>
+
 <!-- ═══════════ HERO ═══════════ -->
 <section class="hero">
   <div class="hero-bg-shapes">
@@ -14,13 +23,33 @@
     </div>
     <h1>
       National Association of<br>
-      <span>Health Information</span><br>
+      <span class="hero-accent">Health Information</span><br>
       Management Students
     </h1>
     <p class="hero-sub">
       Uniting HIM students across the Southwest Zone — advancing academics,
-      sports, professional development, and community impact.
+      sports, professional development, and community impact under the
+      2026/2027 NEW DAWN Administration.
     </p>
+
+    <!-- ANTHEM PLAYER -->
+    <div class="anthem-player">
+      <div class="anthem-icon">
+        <i data-feather="music" style="width:18px;height:18px;"></i>
+      </div>
+      <div class="anthem-info">
+        <div class="anthem-title">HIM Anthem</div>
+        <div class="anthem-sub">Health Information Management Anthem</div>
+      </div>
+      <audio id="anthemAudio" src="/audio/him.mp3" preload="none"></audio>
+      <button class="anthem-play-btn" id="anthemPlayBtn" onclick="toggleAnthem()">
+        <i data-feather="play" id="anthemPlayIcon" style="width:18px;height:18px;"></i>
+      </button>
+      <div class="anthem-progress">
+        <div class="anthem-bar" id="anthemBar"></div>
+      </div>
+    </div>
+
     <div class="hero-btns">
       <a href="/chapters" class="btn btn-primary">
         <i data-feather="map-pin"></i> View Chapters
@@ -39,47 +68,54 @@
 <div class="stats-bar">
   <div class="stats-bar-inner">
     <div class="stat-item animate-on-scroll">
-      <div class="stat-num" data-count="<%= db.site.stats.chapters %>"><%= db.site.stats.chapters %></div>
+      <div class="stat-num" data-count="<%= (site.stats||{}).chapters||0 %>"><%= (site.stats||{}).chapters||0 %></div>
       <div class="stat-lbl">Chapters</div>
     </div>
     <div class="stat-item animate-on-scroll">
-      <div class="stat-num" style="font-size:26px;"><%= db.site.stats.members %></div>
+      <div class="stat-num" style="font-size:26px;"><%= (site.stats||{}).members||'' %></div>
       <div class="stat-lbl">Student Members</div>
     </div>
     <div class="stat-item animate-on-scroll">
-      <div class="stat-num" data-count="<%= db.site.stats.states %>"><%= db.site.stats.states %></div>
+      <div class="stat-num" data-count="<%= (site.stats||{}).states||0 %>"><%= (site.stats||{}).states||0 %></div>
       <div class="stat-lbl">States Represented</div>
     </div>
     <div class="stat-item animate-on-scroll">
-      <div class="stat-num" data-count="<%= db.site.stats.years %>"><%= db.site.stats.years %></div>
+      <div class="stat-num" data-count="<%= (site.stats||{}).years||0 %>"><%= (site.stats||{}).years||0 %></div>
       <div class="stat-lbl">Years of Excellence</div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════ EXECUTIVES ═══════════ -->
+<!-- ═══════════ EXECUTIVES (TOP 3) ═══════════ -->
 <div class="section-bg" style="padding: 80px 0;">
   <div class="section">
     <div class="section-header animate-on-scroll">
       <div class="section-tag"><i data-feather="users"></i> Leadership</div>
-      <h2>Meet Our Executives</h2>
-      <p>The dedicated student leaders driving NAHIMS SW forward</p>
+      <h2>2026/2027 NEW DAWN Administration</h2>
+      <p>Comrade Abdulfatah Abdullahi's executive team driving NAHIMS SW forward</p>
     </div>
-    <div class="execs-grid">
-      <% db.executives.forEach((exec, i) => { %>
-      <div class="exec-card <%= exec.position.toLowerCase().includes('president') && !exec.position.toLowerCase().includes('vice') && !exec.position.toLowerCase().includes('past') ? 'is-president' : '' %> animate-on-scroll" style="animation-delay: <%= i * 60 %>ms">
-        <div class="exec-avatar" style="background:<%= exec.color %>;">
-          <% if (exec.image) { %>
-            <img src="<%= exec.image %>" alt="<%= exec.name %>">
-          <% } else { %>
-            <%= exec.initials %>
-          <% } %>
+    <div class="execs-grid execs-top3">
+      <% executives.forEach((exec, i) => { %>
+      <% const isPresident = exec.position.toLowerCase().includes('president') && !exec.position.toLowerCase().includes('vice') && !exec.position.toLowerCase().includes('past'); %>
+      <div class="exec-card <%= isPresident ? 'is-president' : '' %> animate-on-scroll" style="animation-delay: <%= i * 80 %>ms">
+        <div class="exec-card-header">
+          <div class="exec-avatar" style="background:<%= exec.color %>;">
+            <% if (exec.image) { %><img src="<%= exec.image %>" alt="<%= exec.name %>"><% } else { %><%= exec.initials %><% } %>
+          </div>
         </div>
-        <div class="exec-name"><%= exec.name %></div>
-        <div class="exec-pos"><%= exec.position %></div>
-        <div class="exec-school"><%= exec.school %></div>
+        <div class="exec-card-body">
+          <% if (isPresident) { %><div class="exec-president-badge"><i data-feather="star" style="width:9px;height:9px;"></i> Zonal President</div><% } %>
+          <div class="exec-name"><%= exec.name %></div>
+          <div class="exec-pos"><%= exec.position %></div>
+          <div class="exec-school"><i data-feather="map-pin" style="width:10px;height:10px;"></i> <%= exec.school %></div>
+        </div>
       </div>
       <% }); %>
+    </div>
+    <div style="text-align:center;margin-top:36px;">
+      <a href="/executives" class="btn btn-green animate-on-scroll">
+        <i data-feather="users"></i> See All Executives & Appointees
+      </a>
     </div>
   </div>
 </div>
@@ -93,7 +129,6 @@
       <p>Initiatives, summits, and programmes that define the NAHIMS SW legacy</p>
     </div>
 
-    <!-- CONVENTION (featured – full width) -->
     <% const convention = featuredEvents.find(e => e.category === 'Convention'); %>
     <% if (convention) { %>
     <a href="/events/<%= convention.slug %>" style="display:block;text-decoration:none;color:inherit;">
@@ -104,25 +139,20 @@
           <% } else { %>
             <div class="event-img-placeholder">
               <i data-feather="flag" style="width:64px;height:64px;opacity:0.25;color:var(--green);"></i>
-              <span>Convention Photo</span>
             </div>
           <% } %>
           <span class="event-cat-badge"><i data-feather="flag" style="display:inline;width:11px;height:11px;"></i> Convention</span>
         </div>
         <div class="event-body">
-          <div class="convention-badge">
-            <i data-feather="award"></i> Historic Event
-          </div>
-          <div class="event-organizer">
-            <i data-feather="user"></i> <%= convention.organizer %> &middot; <%= convention.organizerRole %>
-          </div>
+          <div class="convention-badge"><i data-feather="award"></i> Historic Event</div>
+          <div class="event-organizer"><i data-feather="user"></i> <%= convention.organizer %> &middot; <%= convention.organizerRole %></div>
           <h3><%= convention.title %></h3>
           <p><%= convention.description %></p>
           <div class="event-meta">
             <div class="event-meta-item"><i data-feather="calendar"></i> <%= new Date(convention.date).toLocaleDateString('en-NG', {year:'numeric',month:'long',day:'numeric'}) %></div>
             <div class="event-meta-item"><i data-feather="map-pin"></i> <%= convention.location %></div>
           </div>
-          <div class="event-footer" style="padding-top:20px; border-top: 1px solid var(--border); margin-top:20px;">
+          <div class="event-footer" style="padding-top:20px;border-top:1px solid var(--border);margin-top:20px;">
             <span class="btn btn-green btn-sm"><i data-feather="arrow-right"></i> Read Full Story</span>
           </div>
         </div>
@@ -130,7 +160,6 @@
     </a>
     <% } %>
 
-    <!-- OTHER EVENTS GRID (pad a girl + tech events) -->
     <div class="cards-grid" style="margin-top: 28px;">
       <% featuredEvents.filter(e => e.category !== 'Convention').forEach((event, i) => { %>
       <div class="event-card animate-on-scroll" style="animation-delay: <%= i * 100 %>ms">
@@ -139,27 +168,13 @@
             <img src="<%= event.image %>" alt="<%= event.title %>">
           <% } else { %>
             <div class="event-img-placeholder">
-              <% if (event.category === 'Social') { %>
-                <i data-feather="heart" style="width:52px;height:52px;opacity:0.25;color:var(--green);"></i>
-              <% } else { %>
-                <i data-feather="cpu" style="width:52px;height:52px;opacity:0.25;color:var(--green);"></i>
-              <% } %>
-              <span>Event Photo</span>
+              <i data-feather="cpu" style="width:52px;height:52px;opacity:0.25;color:var(--green);"></i>
             </div>
           <% } %>
-          <span class="event-cat-badge">
-            <% if (event.category === 'Social') { %>
-              <i data-feather="heart" style="display:inline;width:11px;height:11px;"></i>
-            <% } else { %>
-              <i data-feather="cpu" style="display:inline;width:11px;height:11px;"></i>
-            <% } %>
-            <%= event.category %>
-          </span>
+          <span class="event-cat-badge"><%= event.category %></span>
         </div>
         <div class="event-body">
-          <div class="event-organizer">
-            <i data-feather="user"></i> <%= event.organizer %>
-          </div>
+          <div class="event-organizer"><i data-feather="user"></i> <%= event.organizer %></div>
           <h3><%= event.title %></h3>
           <p><%= event.description.substring(0, 160) %>...</p>
           <div class="event-meta">
@@ -168,9 +183,7 @@
           </div>
         </div>
         <div class="event-footer">
-          <a href="/events/<%= event.slug %>" class="btn btn-green btn-sm" style="text-decoration:none;">
-            <i data-feather="arrow-right"></i> Read More
-          </a>
+          <a href="/events/<%= event.slug %>" class="btn btn-green btn-sm"><i data-feather="arrow-right"></i> Read More</a>
         </div>
       </div>
       <% }); %>
@@ -193,9 +206,7 @@
           <% if (article.image) { %>
             <img src="<%= article.image %>" alt="<%= article.title %>">
           <% } else { %>
-            <div class="news-img-placeholder">
-              <i data-feather="file-text"></i>
-            </div>
+            <div class="news-img-placeholder"><i data-feather="file-text"></i></div>
           <% } %>
         </div>
         <div class="news-body">
@@ -216,9 +227,7 @@
       <% }); %>
     </div>
     <div style="text-align:center;margin-top:36px;">
-      <a href="/news" class="btn btn-green animate-on-scroll">
-        <i data-feather="rss"></i> View All News
-      </a>
+      <a href="/news" class="btn btn-green animate-on-scroll"><i data-feather="rss"></i> View All News</a>
     </div>
   </div>
 </div>
@@ -262,25 +271,25 @@
       <h2>What Are You Looking For?</h2>
     </div>
     <div class="quick-links-grid">
+      <a href="/executives" class="quick-link ql-gold animate-on-scroll" style="text-decoration:none;">
+        <i data-feather="users"></i>
+        <div class="quick-link-title">Executives</div>
+        <div class="quick-link-sub">Meet the NEW DAWN team</div>
+      </a>
       <a href="/sports" class="quick-link ql-green animate-on-scroll" style="text-decoration:none;">
         <i data-feather="award"></i>
         <div class="quick-link-title">Sports</div>
-        <div class="quick-link-sub">League table, fixtures, results</div>
+        <div class="quick-link-sub">League table, fixtures, live scores</div>
       </a>
       <a href="/academic" class="quick-link ql-blue animate-on-scroll" style="text-decoration:none;">
         <i data-feather="book-open"></i>
         <div class="quick-link-title">Academic</div>
         <div class="quick-link-sub">Materials, videos, events</div>
       </a>
-      <a href="/news" class="quick-link ql-red animate-on-scroll" style="text-decoration:none;">
-        <i data-feather="rss"></i>
-        <div class="quick-link-title">News &amp; Awareness</div>
-        <div class="quick-link-sub">Health tips, announcements</div>
-      </a>
       <a href="/chapters" class="quick-link ql-purple animate-on-scroll" style="text-decoration:none;">
         <i data-feather="map-pin"></i>
         <div class="quick-link-title">Chapters</div>
-        <div class="quick-link-sub">List, contacts, dues status</div>
+        <div class="quick-link-sub">Directory & dues status</div>
       </a>
     </div>
   </div>

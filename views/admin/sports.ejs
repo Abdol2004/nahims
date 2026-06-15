@@ -2,22 +2,93 @@
 <div class="admin-topbar"><h1>Sports & League</h1></div>
 <% if (success) { %><div class="alert alert-success"><i data-feather="check-circle"></i> <%= success %></div><% } %>
 
+<!-- LIVE MATCH CONTROL -->
+<div class="admin-card" style="border:2px solid var(--green);">
+  <div class="admin-card-header" style="background:var(--green-light);">
+    <h3 style="color:var(--green);"><i data-feather="radio" style="display:inline;width:15px;height:15px;"></i> Live Match Score</h3>
+    <% if (db.sports.liveMatch && db.sports.liveMatch.enabled) { %>
+      <span class="badge badge-paid" style="animation:pulse 1.5s infinite;">● LIVE</span>
+    <% } %>
+  </div>
+  <form method="POST" action="/admin/sports/live/update">
+    <div class="form-check" style="margin-bottom:16px;">
+      <input type="checkbox" name="liveEnabled" id="liveEnabled" <%= db.sports.liveMatch && db.sports.liveMatch.enabled ? 'checked' : '' %>>
+      <label for="liveEnabled" style="font-weight:700;color:var(--green);">Enable Live Scoreboard</label>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Home Team</label>
+        <select name="liveHome" class="form-select">
+          <option value="">Select team</option>
+          <% (db.sports.schools || []).forEach(s => { %>
+            <option <%= db.sports.liveMatch && db.sports.liveMatch.home === s ? 'selected' : '' %>><%= s %></option>
+          <% }); %>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Away Team</label>
+        <select name="liveAway" class="form-select">
+          <option value="">Select team</option>
+          <% (db.sports.schools || []).forEach(s => { %>
+            <option <%= db.sports.liveMatch && db.sports.liveMatch.away === s ? 'selected' : '' %>><%= s %></option>
+          <% }); %>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid-3">
+      <div class="form-group"><label class="form-label">Home Score</label><input type="number" name="liveHomeScore" class="form-input" value="<%= db.sports.liveMatch ? db.sports.liveMatch.homeScore : 0 %>" min="0"></div>
+      <div class="form-group"><label class="form-label">Away Score</label><input type="number" name="liveAwayScore" class="form-input" value="<%= db.sports.liveMatch ? db.sports.liveMatch.awayScore : 0 %>" min="0"></div>
+      <div class="form-group"><label class="form-label">Minute</label><input type="number" name="liveMinute" class="form-input" value="<%= db.sports.liveMatch ? db.sports.liveMatch.minute : 0 %>" min="0" max="120"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Match Status</label>
+      <select name="liveStatus" class="form-select">
+        <% ['1st Half','Half Time','2nd Half','Full Time','Extra Time','Penalties'].forEach(s => { %>
+          <option <%= db.sports.liveMatch && db.sports.liveMatch.status === s ? 'selected' : '' %>><%= s %></option>
+        <% }); %>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-green btn-sm"><i data-feather="zap"></i> Update Live Score</button>
+  </form>
+</div>
+
+<!-- SCHOOLS MANAGEMENT -->
+<div class="admin-card">
+  <div class="admin-card-header"><h3>Registered Schools</h3></div>
+  <form method="POST" action="/admin/sports/school/add" style="display:flex;gap:10px;margin-bottom:16px;">
+    <input type="text" name="school" class="form-input" placeholder="New school name" required style="flex:1;">
+    <button type="submit" class="btn btn-green btn-sm"><i data-feather="plus"></i> Add School</button>
+  </form>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;">
+    <% (db.sports.schools || []).forEach(s => { %>
+    <div style="display:flex;align-items:center;gap:8px;background:var(--green-light);border:1px solid var(--green-mid);padding:6px 12px;border-radius:20px;font-size:13px;">
+      <span style="color:var(--green);font-weight:600;"><%= s %></span>
+      <form method="POST" action="/admin/sports/school/delete" style="margin:0;">
+        <input type="hidden" name="school" value="<%= s %>">
+        <button type="submit" style="background:none;border:none;cursor:pointer;color:#dc2626;padding:0;line-height:1;" title="Remove"><i data-feather="x" style="width:13px;height:13px;"></i></button>
+      </form>
+    </div>
+    <% }); %>
+    <% if (!(db.sports.schools || []).length) { %>
+      <span style="color:var(--gray);font-size:13px;">No schools added yet. Add schools above to use them in fixtures and live scores.</span>
+    <% } %>
+  </div>
+</div>
+
+<!-- LEAGUE TABLE -->
 <div class="admin-card">
   <div class="admin-card-header"><h3>League Table</h3></div>
   <form method="POST" action="/admin/sports/league/update">
     <div class="table-wrap"><table>
       <thead><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>Form (W,D,L)</th></tr></thead>
       <tbody>
-        <% db.sportLeague.forEach(team => { %>
+        <% (db.sports.sportLeague || []).forEach(team => { %>
         <tr>
           <td><input type="text" name="team" class="form-input" value="<%= team.team %>" style="min-width:150px;"></td>
-          <td><input type="number" name="p" class="form-input" value="<%= team.p %>" style="width:60px;padding:6px;"></td>
-          <td><input type="number" name="w" class="form-input" value="<%= team.w %>" style="width:60px;padding:6px;"></td>
-          <td><input type="number" name="d" class="form-input" value="<%= team.d %>" style="width:60px;padding:6px;"></td>
-          <td><input type="number" name="l" class="form-input" value="<%= team.l %>" style="width:60px;padding:6px;"></td>
-          <td><input type="number" name="gf" class="form-input" value="<%= team.gf %>" style="width:60px;padding:6px;"></td>
-          <td><input type="number" name="ga" class="form-input" value="<%= team.ga %>" style="width:60px;padding:6px;"></td>
-          <td><input type="text" name="form" class="form-input" value="<%= (team.form||[]).join(',') %>" placeholder="W,D,L,W,W" style="width:110px;"></td>
+          <td><input type="number" name="p"  class="form-input" value="<%= team.p  %>" style="width:55px;padding:6px;"></td>
+          <td><input type="number" name="w"  class="form-input" value="<%= team.w  %>" style="width:55px;padding:6px;"></td>
+          <td><input type="number" name="d"  class="form-input" value="<%= team.d  %>" style="width:55px;padding:6px;"></td>
+          <td><input type="number" name="l"  class="form-input" value="<%= team.l  %>" style="width:55px;padding:6px;"></td>
+          <td><input type="number" name="gf" class="form-input" value="<%= team.gf %>" style="width:55px;padding:6px;"></td>
+          <td><input type="number" name="ga" class="form-input" value="<%= team.ga %>" style="width:55px;padding:6px;"></td>
+          <td><input type="text"   name="form" class="form-input" value="<%= (team.form||[]).join(',') %>" placeholder="W,D,L,W,W" style="width:110px;"></td>
         </tr>
         <% }); %>
       </tbody>
@@ -31,25 +102,32 @@
   <div class="admin-card">
     <div class="admin-card-header"><h3>Add Fixture</h3></div>
     <form method="POST" action="/admin/sports/fixture/add">
-      <div class="form-group"><label class="form-label">Home Team</label><input type="text" name="home" class="form-input" required></div>
-      <div class="form-group"><label class="form-label">Away Team</label><input type="text" name="away" class="form-input" required></div>
+      <div class="form-group"><label class="form-label">Home Team</label>
+        <select name="home" class="form-select">
+          <% (db.sports.schools || []).forEach(s => { %><option><%= s %></option><% }); %>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Away Team</label>
+        <select name="away" class="form-select">
+          <% (db.sports.schools || []).forEach(s => { %><option><%= s %></option><% }); %>
+        </select>
+      </div>
       <div class="form-grid">
         <div class="form-group"><label class="form-label">Date</label><input type="date" name="date" class="form-input" required></div>
         <div class="form-group"><label class="form-label">Time</label><input type="time" name="time" class="form-input" required></div>
       </div>
       <div class="form-grid">
         <div class="form-group"><label class="form-label">Venue</label><input type="text" name="venue" class="form-input"></div>
-        <div class="form-group"><label class="form-label">Matchday</label><input type="number" name="matchday" class="form-input" value="9"></div>
+        <div class="form-group"><label class="form-label">Matchday</label><input type="number" name="matchday" class="form-input" value="10"></div>
       </div>
       <button type="submit" class="btn btn-green btn-sm"><i data-feather="plus"></i> Add Fixture</button>
     </form>
-    <!-- Fixtures list -->
-    <% if (db.fixtures.length) { %>
+    <% if ((db.sports.fixtures || []).length) { %>
     <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
-      <% db.fixtures.forEach(f => { %>
+      <% (db.sports.fixtures || []).forEach(f => { %>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">
-        <span><strong><%= f.home %></strong> vs <strong><%= f.away %></strong> &middot; <%= f.date %></span>
-        <form method="POST" action="/admin/sports/fixture/delete/<%= f.id %>" data-confirm="Delete fixture?">
+        <span><strong><%= f.home %></strong> vs <strong><%= f.away %></strong> &middot; <%= f.date %> <%= f.time %></span>
+        <form method="POST" action="/admin/sports/fixture/delete/<%= f._id %>" data-confirm="Delete fixture?">
           <button class="btn btn-xs" style="background:#FEF2F2;color:#dc2626;border:1px solid #fecaca;"><i data-feather="trash-2"></i></button>
         </form>
       </div>
@@ -62,19 +140,39 @@
   <div class="admin-card">
     <div class="admin-card-header"><h3>Add Result</h3></div>
     <form method="POST" action="/admin/sports/result/add">
-      <div class="form-group"><label class="form-label">Home Team</label><input type="text" name="home" class="form-input" required></div>
-      <div class="form-group"><label class="form-label">Away Team</label><input type="text" name="away" class="form-input" required></div>
+      <div class="form-group"><label class="form-label">Home Team</label>
+        <select name="home" class="form-select">
+          <% (db.sports.schools || []).forEach(s => { %><option><%= s %></option><% }); %>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Away Team</label>
+        <select name="away" class="form-select">
+          <% (db.sports.schools || []).forEach(s => { %><option><%= s %></option><% }); %>
+        </select>
+      </div>
       <div class="form-grid">
         <div class="form-group"><label class="form-label">Home Score</label><input type="number" name="homeScore" class="form-input" value="0" min="0"></div>
         <div class="form-group"><label class="form-label">Away Score</label><input type="number" name="awayScore" class="form-input" value="0" min="0"></div>
       </div>
       <div class="form-grid">
         <div class="form-group"><label class="form-label">Date</label><input type="date" name="date" class="form-input" required></div>
-        <div class="form-group"><label class="form-label">Matchday</label><input type="number" name="matchday" class="form-input" value="8"></div>
+        <div class="form-group"><label class="form-label">Matchday</label><input type="number" name="matchday" class="form-input" value="9"></div>
       </div>
       <div class="form-group"><label class="form-label">Scorers</label><input type="text" name="scorers" class="form-input" placeholder="Eze 12', 45' | Okoye 33'"></div>
       <button type="submit" class="btn btn-green btn-sm"><i data-feather="plus"></i> Add Result</button>
     </form>
+    <% if ((db.sports.results || []).length) { %>
+    <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
+      <% (db.sports.results || []).forEach(r => { %>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">
+        <span><strong><%= r.home %></strong> <%= r.homeScore %>–<%= r.awayScore %> <strong><%= r.away %></strong></span>
+        <form method="POST" action="/admin/sports/result/delete/<%= r._id %>" data-confirm="Delete result?">
+          <button class="btn btn-xs" style="background:#FEF2F2;color:#dc2626;border:1px solid #fecaca;"><i data-feather="trash-2"></i></button>
+        </form>
+      </div>
+      <% }); %>
+    </div>
+    <% } %>
   </div>
 </div>
 <%- include('layout-end') %>

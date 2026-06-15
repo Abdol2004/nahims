@@ -11,10 +11,16 @@
       <div class="form-group"><label class="form-label">Phone</label><input type="text" name="phone" class="form-input" value="<%= db.site.phone %>"></div>
     </div>
     <div class="form-grid-3">
-      <div class="form-group"><label class="form-label">Twitter</label><input type="text" name="twitter" class="form-input" value="<%= db.site.twitter %>"></div>
+      <div class="form-group"><label class="form-label">Twitter / X Handle</label><input type="text" name="twitter" class="form-input" value="<%= db.site.twitter %>"></div>
       <div class="form-group"><label class="form-label">Instagram</label><input type="text" name="instagram" class="form-input" value="<%= db.site.instagram %>"></div>
       <div class="form-group"><label class="form-label">Facebook</label><input type="text" name="facebook" class="form-input" value="<%= db.site.facebook %>"></div>
     </div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">TikTok Handle</label><input type="text" name="tiktok" class="form-input" value="<%= db.site.tiktok || '' %>" placeholder="@nahimssw"></div>
+      <div class="form-group"><label class="form-label">WhatsApp Group Link</label><input type="text" name="whatsapp" class="form-input" value="<%= db.site.whatsapp || '' %>" placeholder="https://chat.whatsapp.com/..."></div>
+    </div>
+    <div class="form-group"><label class="form-label">NAHIMS SW TV (YouTube Channel URL)</label><input type="text" name="youtubeTV" class="form-input" value="<%= db.site.youtubeTV || '' %>" placeholder="https://youtube.com/@nahimsswtv"></div>
+
     <hr style="border:none;border-top:1px solid var(--border);margin:20px 0;">
     <h4 style="margin-bottom:16px;font-size:15px;">Homepage Statistics</h4>
     <div class="form-grid">
@@ -25,13 +31,31 @@
       <div class="form-group"><label class="form-label">States</label><input type="text" name="statStates" class="form-input" value="<%= db.site.stats.states %>"></div>
       <div class="form-group"><label class="form-label">Years</label><input type="text" name="statYears" class="form-input" value="<%= db.site.stats.years %>"></div>
     </div>
+
+    <hr style="border:none;border-top:1px solid var(--border);margin:20px 0;">
+    <h4 style="margin-bottom:6px;font-size:15px;"><i data-feather="message-circle" style="display:inline;width:15px;height:15px;color:var(--green);"></i> Social Popup Settings</h4>
+    <p style="font-size:13px;color:var(--gray);margin-bottom:16px;">This popup appears when visitors first come to the site. Leave URLs blank to hide individual buttons.</p>
+    <div class="form-check" style="margin-bottom:16px;">
+      <input type="checkbox" name="popupEnabled" id="popupEnabled" <%= db.site.popup && db.site.popup.enabled ? 'checked' : '' %>>
+      <label for="popupEnabled" style="font-weight:600;">Enable Welcome Popup</label>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label"><i data-feather="message-circle" style="display:inline;width:13px;height:13px;color:#25D366;"></i> WhatsApp Group URL</label><input type="text" name="popupWhatsapp" class="form-input" value="<%= db.site.popup && db.site.popup.whatsappUrl ? db.site.popup.whatsappUrl : '' %>" placeholder="https://chat.whatsapp.com/..."></div>
+      <div class="form-group"><label class="form-label"><i data-feather="twitter" style="display:inline;width:13px;height:13px;color:#000;"></i> X (Twitter) Profile URL</label><input type="text" name="popupX" class="form-input" value="<%= db.site.popup && db.site.popup.xUrl ? db.site.popup.xUrl : '' %>" placeholder="https://x.com/nahimssw"></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label"><i data-feather="facebook" style="display:inline;width:13px;height:13px;color:#1877F2;"></i> Facebook Page URL</label><input type="text" name="popupFacebook" class="form-input" value="<%= db.site.popup && db.site.popup.facebookUrl ? db.site.popup.facebookUrl : '' %>" placeholder="https://facebook.com/nahimssw"></div>
+      <div class="form-group"><label class="form-label">TikTok Profile URL</label><input type="text" name="popupTiktok" class="form-input" value="<%= db.site.popup && db.site.popup.tiktokUrl ? db.site.popup.tiktokUrl : '' %>" placeholder="https://tiktok.com/@nahimssw"></div>
+    </div>
+    <div class="form-group"><label class="form-label"><i data-feather="youtube" style="display:inline;width:13px;height:13px;color:#FF0000;"></i> NAHIMS SW TV URL</label><input type="text" name="popupYoutubeTV" class="form-input" value="<%= db.site.popup && db.site.popup.youtubeTVUrl ? db.site.popup.youtubeTVUrl : '' %>" placeholder="https://youtube.com/@nahimsswtv"></div>
+
     <hr style="border:none;border-top:1px solid var(--border);margin:20px 0;">
     <h4 style="margin-bottom:16px;font-size:15px;">Announcement Ticker</h4>
     <div class="form-group">
       <label class="form-label">Announcements (one per line)</label>
-      <textarea name="announcements" class="form-textarea" style="min-height:140px;"><%= db.announcements.join('\n') %></textarea>
+      <textarea name="announcements" class="form-textarea" style="min-height:140px;"><%= (db.site.announcements || []).join('\n') %></textarea>
     </div>
-    <button type="submit" class="btn btn-green"><i data-feather="save"></i> Save Settings</button>
+    <button type="submit" class="btn btn-green"><i data-feather="save"></i> Save All Settings</button>
   </form>
 </div>
 
