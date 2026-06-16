@@ -147,22 +147,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const dismissPopupBtn = document.getElementById('dismissPopup');
 
   if (popup) {
-    const popupKey = 'nahims_popup_v2';
-    const lastSeen = localStorage.getItem(popupKey);
-    const now = Date.now();
-    const oneDay = 24 * 60 * 60 * 1000;
-
-    if (!lastSeen || (now - parseInt(lastSeen)) > oneDay) {
-      setTimeout(() => {
-        popup.style.display = 'flex';
-      }, 2500);
+    // Show once per browser session — clears when tab/browser is closed
+    if (!sessionStorage.getItem('nahims_popup_shown')) {
+      setTimeout(() => { popup.style.display = 'flex'; }, 2500);
     }
 
     function closePopup() {
       popup.style.display = 'none';
-      localStorage.setItem(popupKey, String(Date.now()));
+      sessionStorage.setItem('nahims_popup_shown', '1');
     }
-    if (closePopupBtn)  closePopupBtn.addEventListener('click',  closePopup);
+    if (closePopupBtn)   closePopupBtn.addEventListener('click',   closePopup);
     if (dismissPopupBtn) dismissPopupBtn.addEventListener('click', closePopup);
     popup.addEventListener('click', (e) => { if (e.target === popup) closePopup(); });
   }

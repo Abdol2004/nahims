@@ -3,41 +3,39 @@
 <div class="admin-page-header">
   <div>
     <h1 class="admin-page-title">Letter Generator</h1>
-    <p class="admin-page-sub">Compose a letter — it will be overlaid on the NAHIMS SW letterhead and downloaded as PDF.</p>
+    <p class="admin-page-sub">Compose a letter — overlaid on the NAHIMS SW letterhead and downloaded as PDF.</p>
   </div>
 </div>
 
-<form method="POST" action="/admin/letters/generate" id="letterForm">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+<% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
 
-    <!-- LEFT COLUMN -->
+<form method="POST" action="/admin/letters/generate" id="letterForm">
+  <div class="letter-grid">
+
+    <!-- LEFT -->
     <div>
-      <!-- Date & Ref -->
       <div class="admin-card" style="margin-bottom:20px;">
         <div class="admin-card-header"><h3>Letter Details</h3></div>
         <div class="admin-card-body">
-          <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
             <div class="form-group">
               <label class="form-label">Date</label>
               <input type="text" name="date" class="form-control"
-                value="<%= new Date().toLocaleDateString('en-NG', {day:'numeric',month:'long',year:'numeric'}) %>"
-                placeholder="e.g. 16th June, 2026">
+                value="<%= new Date().toLocaleDateString('en-NG',{day:'numeric',month:'long',year:'numeric'}) %>">
             </div>
             <div class="form-group">
-              <label class="form-label">Reference No. <span style="color:var(--gray);font-weight:400;">(optional)</span></label>
-              <input type="text" name="refNo" class="form-control" placeholder="e.g. NAHIMS/SW/2026/001">
+              <label class="form-label">Ref No. <span style="color:var(--gray);font-weight:400;">(optional)</span></label>
+              <input type="text" name="refNo" class="form-control" placeholder="NAHIMS/SW/2026/001">
             </div>
           </div>
-
           <div class="form-group">
-            <label class="form-label">Subject</label>
+            <label class="form-label">Subject *</label>
             <input type="text" name="subject" class="form-control" placeholder="Letter subject / title" required>
           </div>
         </div>
       </div>
 
-      <!-- Recipient -->
-      <div class="admin-card" style="margin-bottom:20px;">
+      <div class="admin-card">
         <div class="admin-card-header"><h3>Recipient</h3></div>
         <div class="admin-card-body">
           <div class="form-group">
@@ -45,28 +43,26 @@
             <input type="text" name="salutation" class="form-control" placeholder="e.g. The Director-General,">
           </div>
           <div class="form-group">
-            <label class="form-label">Recipient Name / Organisation</label>
+            <label class="form-label">Name / Organisation</label>
             <input type="text" name="toName" class="form-control" placeholder="e.g. Federal Ministry of Health">
           </div>
           <div class="form-group">
             <label class="form-label">Address</label>
-            <textarea name="toAddress" class="form-control" rows="3" placeholder="Street, City, State (one line per row)"></textarea>
+            <textarea name="toAddress" class="form-control" rows="3" placeholder="Street&#10;City, State"></textarea>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- RIGHT COLUMN -->
+    <!-- RIGHT -->
     <div>
-      <!-- Body -->
-      <div class="admin-card" style="margin-bottom:20px;">
-        <div class="admin-card-header"><h3>Letter Body</h3></div>
+      <div class="admin-card">
+        <div class="admin-card-header"><h3>Letter Body *</h3></div>
         <div class="admin-card-body">
           <div class="form-group">
-            <label class="form-label">Body Text</label>
-            <textarea name="body" class="form-control" rows="14"
-              placeholder="Type the full letter content here. Press Enter for new paragraphs." required></textarea>
-            <div style="font-size:11px;color:var(--gray);margin-top:6px;">Tip: blank lines between paragraphs will add spacing in the PDF.</div>
+            <textarea name="body" class="form-control" rows="16"
+              placeholder="Type the full letter content here.&#10;&#10;Leave blank lines between paragraphs for spacing." required></textarea>
+            <p style="font-size:11px;color:var(--gray);margin-top:6px;">Blank lines = paragraph spacing in the PDF.</p>
           </div>
         </div>
       </div>
@@ -74,123 +70,197 @@
   </div>
 
   <!-- SIGNATORIES -->
-  <div class="admin-card" style="margin-bottom:24px;">
-    <div class="admin-card-header" style="display:flex;justify-content:space-between;align-items:center;">
-      <h3>Signatories</h3>
-      <button type="button" class="btn btn-outline btn-sm" onclick="addSignatory()">
+  <div class="admin-card" style="margin:20px 0;">
+    <div class="admin-card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+      <div>
+        <h3 style="margin:0;">Signatories</h3>
+        <p style="font-size:12px;color:var(--gray);margin:4px 0 0;">Min 2 (mandatory) · Max 4 total</p>
+      </div>
+      <button type="button" class="btn btn-outline btn-sm" id="addSigBtn" onclick="addSignatory()">
         <i data-feather="plus"></i> Add Signatory
       </button>
     </div>
     <div class="admin-card-body">
-      <p style="font-size:12px;color:var(--gray);margin-bottom:16px;">
-        <i data-feather="lock" style="width:12px;height:12px;display:inline;"></i>
-        President and General Secretary are mandatory. Add others as needed.
-      </p>
-      <div id="signatories-list">
+      <div id="sig-list">
 
-        <!-- Mandatory: President -->
-        <div class="signatory-row mandatory" data-index="0">
-          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;margin-bottom:12px;">
+        <!-- 0: President (mandatory) -->
+        <div class="sig-row sig-mandatory">
+          <div class="sig-inner">
             <div class="form-group" style="margin:0;">
-              <label class="form-label" style="font-size:11px;">Name <span class="badge-mandatory">Required</span></label>
+              <label class="form-label" style="font-size:11px;">Name <span class="sig-badge">President</span></label>
               <input type="text" name="signatories[0][name]" class="form-control"
-                value="<%= president ? president.name : '' %>" required placeholder="President's name">
+                value="<%= president ? president.name : '' %>" required placeholder="President's full name">
             </div>
             <div class="form-group" style="margin:0;">
               <label class="form-label" style="font-size:11px;">Position</label>
               <input type="text" name="signatories[0][position]" class="form-control"
                 value="<%= president ? president.position : 'Zonal President' %>" required>
             </div>
-            <div style="padding-bottom:4px;">
-              <span class="lock-badge"><i data-feather="lock" style="width:12px;height:12px;"></i></span>
+            <div class="sig-lock">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             </div>
           </div>
         </div>
 
-        <!-- Mandatory: General Secretary -->
-        <div class="signatory-row mandatory" data-index="1">
-          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;margin-bottom:12px;">
+        <!-- 1: Gen Sec (mandatory) -->
+        <div class="sig-row sig-mandatory">
+          <div class="sig-inner">
             <div class="form-group" style="margin:0;">
-              <label class="form-label" style="font-size:11px;">Name <span class="badge-mandatory">Required</span></label>
+              <label class="form-label" style="font-size:11px;">Name <span class="sig-badge sig-badge-sec">Gen. Sec</span></label>
               <input type="text" name="signatories[1][name]" class="form-control"
-                value="<%= genSec ? genSec.name : '' %>" required placeholder="General Secretary's name">
+                value="<%= genSec ? genSec.name : '' %>" required placeholder="General Secretary's full name">
             </div>
             <div class="form-group" style="margin:0;">
               <label class="form-label" style="font-size:11px;">Position</label>
               <input type="text" name="signatories[1][position]" class="form-control"
                 value="<%= genSec ? genSec.position : 'Zonal General Secretary' %>" required>
             </div>
-            <div style="padding-bottom:4px;">
-              <span class="lock-badge"><i data-feather="lock" style="width:12px;height:12px;"></i></span>
+            <div class="sig-lock">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             </div>
           </div>
         </div>
 
       </div>
-
-      <div id="optional-sigs"></div>
+      <!-- Optional slots injected here by JS -->
+      <div id="sig-optional"></div>
+      <p id="sig-max-notice" style="display:none;font-size:12px;color:var(--gold);margin-top:8px;">
+        <i data-feather="info" style="display:inline;width:12px;height:12px;"></i> Maximum 4 signatories reached.
+      </p>
     </div>
   </div>
 
-  <div style="display:flex;gap:12px;justify-content:flex-end;margin-bottom:40px;">
+  <div style="display:flex;gap:12px;justify-content:flex-end;margin-bottom:40px;flex-wrap:wrap;">
     <a href="/admin" class="btn btn-outline">Cancel</a>
-    <button type="submit" class="btn btn-green" id="generateBtn">
+    <button type="submit" class="btn btn-green" id="genBtn">
       <i data-feather="download"></i> Generate & Download PDF
     </button>
   </div>
 </form>
 
+<!-- LETTER HISTORY -->
+<div class="admin-card" style="margin-bottom:40px;">
+  <div class="admin-card-header"><h3>Letter History</h3></div>
+  <div class="admin-card-body" style="padding:0;">
+    <% if (!history || !history.length) { %>
+      <p style="text-align:center;color:var(--gray);padding:40px;">No letters generated yet.</p>
+    <% } else { %>
+    <div class="table-wrap" style="border-radius:0;">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Date & Time</th>
+            <th>Subject</th>
+            <th>Recipient</th>
+            <th>Signatories</th>
+            <th style="width:60px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% history.forEach(letter => { %>
+          <tr>
+            <td style="white-space:nowrap;color:var(--gray);font-size:12px;">
+              <%= letter.createdAt.toLocaleDateString('en-NG',{day:'numeric',month:'short',year:'numeric'}) %><br>
+              <span style="color:var(--gray);"><%= letter.createdAt.toLocaleTimeString('en-NG',{hour:'2-digit',minute:'2-digit'}) %></span>
+            </td>
+            <td><strong style="font-size:13px;"><%= letter.subject %></strong></td>
+            <td style="font-size:13px;color:var(--gray);"><%= letter.toName || '—' %></td>
+            <td>
+              <div style="display:flex;flex-wrap:wrap;gap:4px;">
+                <% (letter.signatories||[]).forEach(s => { %>
+                  <span style="background:var(--green-light);color:var(--green);font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;white-space:nowrap;"><%= s.name %></span>
+                <% }) %>
+              </div>
+            </td>
+            <td>
+              <form method="POST" action="/admin/letters/delete/<%= letter._id %>" data-confirm="Delete this letter record?">
+                <button type="submit" style="background:none;border:none;color:var(--gray);cursor:pointer;padding:4px;" title="Delete record">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                </button>
+              </form>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <% } %>
+  </div>
+</div>
+
 <style>
-.signatory-row { border-left: 3px solid var(--green-light); padding-left: 14px; }
-.signatory-row.mandatory { border-color: var(--green); }
-.signatory-row.optional  { border-color: var(--gold-light); }
-.badge-mandatory { background: var(--green); color: #fff; font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 4px; letter-spacing: 0.5px; vertical-align: middle; margin-left: 4px; }
-.lock-badge { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 38px; background: var(--gray-light); border-radius: 8px; color: var(--gray); }
-.btn-sm { padding: 6px 14px; font-size: 12px; }
+.letter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 768px) { .letter-grid { grid-template-columns: 1fr; } }
+
+.sig-row { border-left: 3px solid var(--green); padding-left: 14px; margin-bottom: 12px; }
+.sig-mandatory { border-color: var(--green); }
+.sig-optional  { border-color: var(--gold-mid); }
+.sig-inner { display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end; }
+@media (max-width: 600px) { .sig-inner { grid-template-columns: 1fr; } }
+.sig-lock { width: 36px; height: 38px; background: var(--gray-light); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--gray); flex-shrink: 0; }
+.sig-badge { background: var(--green); color: #fff; font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.5px; margin-left: 5px; }
+.sig-badge-sec { background: var(--navy); }
+.btn-sm { padding: 7px 14px; font-size: 12px; }
+.remove-sig-btn { width: 36px; height: 38px; background: var(--gray-light); border: none; border-radius: 8px; cursor: pointer; color: var(--gray); display: flex; align-items: center; justify-content: center; transition: var(--transition); flex-shrink: 0; }
+.remove-sig-btn:hover { background: #fee2e2; color: #dc2626; }
 </style>
 
 <script>
-let nextIndex = 2;
+let optionalCount = 0;
+const MAX_OPTIONAL = 2;
 
 function addSignatory() {
-  const container = document.getElementById('optional-sigs');
-  const idx = nextIndex++;
+  if (optionalCount >= MAX_OPTIONAL) return;
+  optionalCount++;
+  const idx = optionalCount + 1; // 2 and 3 (0-indexed from the mandatory ones)
+  const realIdx = idx; // signatories[2] and signatories[3]
+
   const div = document.createElement('div');
-  div.className = 'signatory-row optional';
-  div.id = 'sig-' + idx;
+  div.className = 'sig-row sig-optional';
+  div.id = 'sig-opt-' + optionalCount;
   div.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;margin-bottom:12px;">
+    <div class="sig-inner">
       <div class="form-group" style="margin:0;">
         <label class="form-label" style="font-size:11px;">Name</label>
-        <input type="text" name="signatories[${idx}][name]" class="form-control" placeholder="e.g. Fatima Ibrahim">
+        <input type="text" name="signatories[${realIdx}][name]" class="form-control" placeholder="Full name">
       </div>
       <div class="form-group" style="margin:0;">
         <label class="form-label" style="font-size:11px;">Position</label>
-        <input type="text" name="signatories[${idx}][position]" class="form-control" placeholder="e.g. Public Relations Officer">
+        <input type="text" name="signatories[${realIdx}][position]" class="form-control" placeholder="e.g. PRO">
       </div>
-      <div style="padding-bottom:4px;">
-        <button type="button" onclick="removeSig('sig-${idx}')"
-          style="width:34px;height:38px;border:none;background:var(--gray-light);border-radius:8px;cursor:pointer;color:var(--gray);display:flex;align-items:center;justify-content:center;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
+      <button type="button" class="remove-sig-btn" onclick="removeSig('sig-opt-${optionalCount}')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>`;
-  container.appendChild(div);
-  if (typeof feather !== 'undefined') feather.replace();
+  document.getElementById('sig-optional').appendChild(div);
+  updateSigUI();
 }
 
 function removeSig(id) {
   const el = document.getElementById(id);
-  if (el) el.remove();
+  if (el) { el.remove(); optionalCount--; updateSigUI(); }
+}
+
+function updateSigUI() {
+  const btn    = document.getElementById('addSigBtn');
+  const notice = document.getElementById('sig-max-notice');
+  if (optionalCount >= MAX_OPTIONAL) {
+    btn.disabled = true;
+    btn.style.opacity = '0.4';
+    notice.style.display = 'block';
+    if (typeof feather !== 'undefined') feather.replace();
+  } else {
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    notice.style.display = 'none';
+  }
 }
 
 document.getElementById('letterForm').addEventListener('submit', function() {
-  const btn = document.getElementById('generateBtn');
+  const btn = document.getElementById('genBtn');
   btn.disabled = true;
-  btn.innerHTML = '<i data-feather="loader"></i> Generating...';
-  if (typeof feather !== 'undefined') feather.replace();
-  // Re-enable after a moment in case of error
-  setTimeout(() => { btn.disabled = false; btn.innerHTML = '<i data-feather="download"></i> Generate & Download PDF'; if(typeof feather!=='undefined')feather.replace(); }, 8000);
+  btn.textContent = 'Generating...';
+  setTimeout(() => { btn.disabled = false; btn.innerHTML = '<i data-feather="download"></i> Generate & Download PDF'; if(typeof feather!=='undefined')feather.replace(); }, 9000);
 });
 </script>
 

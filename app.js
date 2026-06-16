@@ -12,7 +12,7 @@ const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
 
 const {
   Site, Executive, Event, News, Chapter,
-  Material, VideoLecture, Sports, Admin
+  Material, VideoLecture, Sports, Admin, Letter
 } = require('./models');
 
 const app  = express();
@@ -601,11 +601,12 @@ app.post('/admin/sports/result/delete/:subid', requireAdmin, async (req, res) =>
 
 // ── Admin: Letter Generator ───────────────────────────────────
 app.get('/admin/letters', requireAdmin, async (req, res) => {
-  const [president, genSec] = await Promise.all([
+  const [president, genSec, history] = await Promise.all([
     Executive.findOne({ type: 'main', position: /president/i }).sort({ order: 1 }),
-    Executive.findOne({ type: 'main', position: /general secretary/i })
+    Executive.findOne({ type: 'main', position: /general secretary/i }),
+    Letter.find().sort({ createdAt: -1 }).limit(50)
   ]);
-  res.render('admin/letters', { active: 'letters', president, genSec, success: req.query.success || null, error: null });
+  res.render('admin/letters', { active: 'letters', president, genSec, history, success: req.query.success || null, error: null });
 });
 
 app.post('/admin/letters/generate', requireAdmin, async (req, res) => {
@@ -712,6 +713,10 @@ app.post('/admin/letters/generate', requireAdmin, async (req, res) => {
     });
 
     const pdfBytes = await pdfDoc.save();
+
+    // Save to history
+    await Letter.create({ subject: subject || 'Untitled', toName: toName || '', signatories: sigs.filter(s => s && s.name) });
+
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="NAHIMS-SW-Letter-${Date.now()}.pdf"`);
     res.end(Buffer.from(pdfBytes));
@@ -719,6 +724,11 @@ app.post('/admin/letters/generate', requireAdmin, async (req, res) => {
     console.error(err);
     res.status(500).send('<h1>PDF Error</h1><p>' + err.message + '</p>');
   }
+});
+
+app.post('/admin/letters/delete/:id', requireAdmin, async (req, res) => {
+  await Letter.findByIdAndDelete(req.params.id);
+  res.redirect('/admin/letters?success=Letter record deleted');
 });
 
 // ── Error handler ─────────────────────────────────────────────

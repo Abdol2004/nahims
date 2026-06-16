@@ -141,6 +141,14 @@ const AdminSchema = new Schema({
   name:     String
 });
 
+// ── Letter History ────────────────────────────────────────────
+const LetterSchema = new Schema({
+  subject:     { type: String, required: true },
+  toName:      { type: String, default: '' },
+  signatories: [{ name: String, position: String }],
+  createdAt:   { type: Date, default: Date.now }
+});
+
 module.exports = {
   Site:         mongoose.model('Site',         SiteSchema),
   Executive:    mongoose.model('Executive',    ExecutiveSchema),
@@ -150,5 +158,6 @@ module.exports = {
   Material:     mongoose.model('Material',     MaterialSchema),
   VideoLecture: mongoose.model('VideoLecture', VideoLectureSchema),
   Sports:       mongoose.model('Sports',       SportsSchema),
-  Admin:        mongoose.model('Admin',        AdminSchema)
+  Admin:        mongoose.model('Admin',        AdminSchema),
+  Letter:       mongoose.model('Letter',       LetterSchema)
 };
