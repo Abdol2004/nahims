@@ -65,10 +65,17 @@
                 <option value="appointee">Appointee</option>
               </select>
             </div>
-            <div style="display:flex;gap:10px;margin-top:10px;align-items:center;">
-              <input type="file" name="image" class="form-input" accept="image/*" style="padding:6px;flex:1;">
-              <button type="submit" class="btn btn-green btn-sm"><i data-feather="save"></i> Save</button>
-              <button type="button" onclick="document.getElementById('editExec<%= exec._id %>').style.display='none'" class="btn btn-sm" style="background:var(--gray-mid);">Cancel</button>
+            <div style="margin-top:10px;">
+              <% if (exec.image) { %>
+                <div style="font-size:11px;color:var(--gray);margin-bottom:6px;">Current photo: <code style="background:#eee;padding:2px 6px;border-radius:3px;"><%= exec.image %></code>
+                  <label style="margin-left:8px;cursor:pointer;"><input type="checkbox" name="clearImage" value="1"> Remove photo</label>
+                </div>
+              <% } %>
+              <div style="display:flex;gap:10px;align-items:center;">
+                <input type="file" name="image" class="form-input" accept="image/*" style="padding:6px;flex:1;">
+                <button type="submit" class="btn btn-green btn-sm"><i data-feather="save"></i> Save</button>
+                <button type="button" onclick="document.getElementById('editExec<%= exec._id %>').style.display='none'" class="btn btn-sm" style="background:var(--gray-mid);">Cancel</button>
+              </div>
             </div>
           </form>
         </td>
@@ -118,10 +125,17 @@
                 <option value="appointee" selected>Appointee</option>
               </select>
             </div>
-            <div style="display:flex;gap:10px;margin-top:10px;align-items:center;">
-              <input type="file" name="image" class="form-input" accept="image/*" style="padding:6px;flex:1;">
-              <button type="submit" class="btn btn-green btn-sm"><i data-feather="save"></i> Save</button>
-              <button type="button" onclick="document.getElementById('editAppt<%= exec._id %>').style.display='none'" class="btn btn-sm" style="background:var(--gray-mid);">Cancel</button>
+            <div style="margin-top:10px;">
+              <% if (exec.image) { %>
+                <div style="font-size:11px;color:var(--gray);margin-bottom:6px;">Current photo: <code style="background:#eee;padding:2px 6px;border-radius:3px;"><%= exec.image %></code>
+                  <label style="margin-left:8px;cursor:pointer;"><input type="checkbox" name="clearImage" value="1"> Remove photo</label>
+                </div>
+              <% } %>
+              <div style="display:flex;gap:10px;align-items:center;">
+                <input type="file" name="image" class="form-input" accept="image/*" style="padding:6px;flex:1;">
+                <button type="submit" class="btn btn-green btn-sm"><i data-feather="save"></i> Save</button>
+                <button type="button" onclick="document.getElementById('editAppt<%= exec._id %>').style.display='none'" class="btn btn-sm" style="background:var(--gray-mid);">Cancel</button>
+              </div>
             </div>
           </form>
         </td>

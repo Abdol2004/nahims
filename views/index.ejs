@@ -100,7 +100,12 @@
       <div class="exec-card <%= isPresident ? 'is-president' : '' %> animate-on-scroll" style="animation-delay: <%= i * 80 %>ms">
         <div class="exec-card-header">
           <div class="exec-avatar" style="background:<%= exec.color %>;">
-            <% if (exec.image) { %><img src="<%= exec.image %>" alt="<%= exec.name %>"><% } else { %><%= exec.initials %><% } %>
+            <% if (exec.image) { %>
+              <img src="<%= exec.image %>" alt="<%= exec.name %>" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+              <span style="display:none"><%= exec.initials %></span>
+            <% } else { %>
+              <span><%= exec.initials %></span>
+            <% } %>
           </div>
         </div>
         <div class="exec-card-body">

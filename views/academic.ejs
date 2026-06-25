@@ -32,7 +32,7 @@
           <h4><%= m.title %></h4>
           <p><%= m.description %></p>
           <% if (m.file) { %>
-            <a href="<%= m.file %>" class="dl-btn" download>
+            <a href="<%= m.file %>" class="dl-btn" target="_blank" rel="noopener">
               <i data-feather="download"></i> Download
             </a>
           <% } else { %>

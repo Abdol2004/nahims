@@ -45,10 +45,29 @@ const storage = multer.diskStorage({
     cb(null, dir);
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
+    const ext = path.extname(file.originalname).toLowerCase() || '.jpg';
+    cb(null, Date.now() + ext);
   }
 });
-const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowed = file.mimetype.startsWith('image/') || file.mimetype === 'application/pdf';
+    if (allowed) cb(null, true);
+    else cb(new Error('Only images and PDFs are allowed'));
+  }
+});
+
+// Wrap multer to handle errors without crashing the request
+function handleUpload(field) {
+  return (req, res, next) => {
+    upload.single(field)(req, res, (err) => {
+      if (err) console.error('[upload]', err.message);
+      next(); // always continue; req.file will be undefined on error
+    });
+  };
+}
 
 // ── Auth middleware ───────────────────────────────────────────
 function requireAdmin(req, res, next) {
@@ -244,7 +263,7 @@ app.get('/admin/executives', requireAdmin, async (req, res) => {
 
 app.post('/admin/executives/add', requireAdmin,
   (req, res, next) => { req.uploadFolder = 'executives'; next(); },
-  upload.single('image'),
+  handleUpload('image'),
   async (req, res) => {
     const count = await Executive.countDocuments({ type: req.body.type || 'main' });
     await Executive.create({
@@ -263,7 +282,7 @@ app.post('/admin/executives/add', requireAdmin,
 
 app.post('/admin/executives/update/:id', requireAdmin,
   (req, res, next) => { req.uploadFolder = 'executives'; next(); },
-  upload.single('image'),
+  handleUpload('image'),
   async (req, res) => {
     const exec = await Executive.findById(req.params.id);
     if (exec) {
@@ -273,6 +292,7 @@ app.post('/admin/executives/update/:id', requireAdmin,
       exec.type     = req.body.type || exec.type;
       exec.initials = req.body.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
       if (req.file) exec.image = '/images/executives/' + req.file.filename;
+      else if (req.body.clearImage) exec.image = '';
       await exec.save();
     }
     res.redirect('/admin/executives?success=Executive updated');
@@ -302,7 +322,7 @@ app.get('/admin/events/edit/:id', requireAdmin, async (req, res) => {
 
 app.post('/admin/events/add', requireAdmin,
   (req, res, next) => { req.uploadFolder = 'events'; next(); },
-  upload.single('image'),
+  handleUpload('image'),
   async (req, res) => {
     const ev = await Event.create({
       title:         req.body.title,
@@ -325,7 +345,7 @@ app.post('/admin/events/add', requireAdmin,
 
 app.post('/admin/events/update/:id', requireAdmin,
   (req, res, next) => { req.uploadFolder = 'events'; next(); },
-  upload.single('image'),
+  handleUpload('image'),
   async (req, res) => {
     const ev = await Event.findById(req.params.id);
     if (ev) {
@@ -370,7 +390,7 @@ app.get('/admin/news/edit/:id', requireAdmin, async (req, res) => {
 
 app.post('/admin/news/add', requireAdmin,
   (req, res, next) => { req.uploadFolder = 'news'; next(); },
-  upload.single('image'),
+  handleUpload('image'),
   async (req, res) => {
     await News.create({
       title:     req.body.title,
@@ -389,7 +409,7 @@ app.post('/admin/news/add', requireAdmin,
 
 app.post('/admin/news/update/:id', requireAdmin,
   (req, res, next) => { req.uploadFolder = 'news'; next(); },
-  upload.single('image'),
+  handleUpload('image'),
   async (req, res) => {
     const article = await News.findById(req.params.id);
     if (article) {
@@ -453,7 +473,7 @@ app.get('/admin/materials', requireAdmin, async (req, res) => {
 
 app.post('/admin/materials/add', requireAdmin,
   (req, res, next) => { req.uploadFolder = 'materials'; next(); },
-  upload.single('file'),
+  handleUpload('file'),
   async (req, res) => {
     await Material.create({
       title:       req.body.title,
